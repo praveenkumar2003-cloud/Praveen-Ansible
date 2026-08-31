@@ -1,0 +1,3608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CRYPTO, US &amp; INDIAN STOCK SCANNER — Pro Market Screener &amp; TradingView Terminal</title>
+
+  <!-- PWA Standalone Metadata -->
+  <meta name="theme-color" content="#06080c" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <link rel="apple-touch-icon" id="pwa-apple-icon" />
+  <link rel="icon" type="image/png" id="pwa-favicon" />
+  <link rel="manifest" id="pwa-manifest" />
+
+  <!-- Fonts & Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-base: #06080c;
+      --bg-surface: #0b0f17;
+      --bg-card: #111723;
+      --bg-elevated: #182030;
+      --bg-input: #0e1420;
+      
+      --border-subtle: #1c2638;
+      --border-active: #2b3a55;
+      --border-focus: #00ff66;
+      
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --accent-green: #00ff66;
+      --accent-green-dim: rgba(0, 255, 102, 0.12);
+      --accent-red: #ff334b;
+      --accent-red-dim: rgba(255, 51, 75, 0.12);
+      --accent-cyan: #38bdf8;
+      --accent-cyan-dim: rgba(56, 189, 248, 0.12);
+      --accent-orange: #fbbf24;
+      --accent-orange-dim: rgba(251, 191, 36, 0.12);
+      --accent-purple: #c084fc;
+      --accent-purple-dim: rgba(192, 132, 252, 0.12);
+      --accent-blue: #60a5fa;
+      --accent-blue-dim: rgba(96, 165, 250, 0.12);
+      
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      padding: 12px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-shell { max-width: 1420px; margin: 0 auto; }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 12px 18px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo-badge {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #111827 0%, #0b0f17 100%);
+      border: 1px solid #2b3a55;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .brand-logo-badge svg { width: 24px; height: 24px; }
+
+    .logo-radar-dot {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 6px;
+      height: 6px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--accent-green);
+      animation: pulse 1.8s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.8; }
+    }
+
+    .brand-title {
+      font-family: var(--font-mono);
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: #fff;
+    }
+
+    .brand-badge {
+      font-size: 0.65rem;
+      color: var(--accent-green);
+      background: var(--accent-green-dim);
+      border: 1px solid rgba(0, 255, 102, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 4px;
+    }
+
+    .brand-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .system-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+    }
+
+    .time-badge {
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .feed-badge {
+      background: var(--accent-green-dim);
+      border: 1px solid rgba(0, 255, 102, 0.3);
+      color: var(--accent-green);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.7rem;
+    }
+
+    .btn-install {
+      background: var(--accent-green);
+      color: #000;
+      font-weight: 800;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      display: none;
+    }
+
+    /* Global Index Ticker Bar */
+    .index-ticker-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 10px 18px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .index-ticker-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .index-ticker-track {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .index-chip {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 5px 10px;
+      min-width: 100px;
+    }
+
+    .index-chip-label {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .index-chip-value {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .color-muted { color: var(--text-muted); }
+
+    /* Control Deck */
+    .control-deck {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 12px 18px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .filter-unit {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .filter-unit label {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    select, input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    select:focus, input:focus {
+      border-color: var(--accent-green);
+      box-shadow: 0 0 0 2px rgba(0, 255, 102, 0.15);
+    }
+
+    .vol-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .vol-input-wrapper {
+      display: flex;
+      align-items: center;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding-right: 8px;
+    }
+
+    .vol-input-wrapper input {
+      border: none;
+      background: transparent;
+      width: 75px;
+    }
+
+    .vol-input-wrapper .suffix {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+    }
+    .checkbox-label input[type="checkbox"] {
+      accent-color: var(--accent-green);
+      cursor: pointer;
+    }
+
+    .btn-scan {
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      border: none;
+      background: var(--accent-green);
+      color: #040806;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-scan:hover {
+      background: #00e65c;
+      transform: translateY(-1px);
+    }
+
+    .btn-manual-search {
+      background: var(--accent-cyan);
+      color: #040806;
+    }
+    .btn-manual-search:hover {
+      background: #0284c7;
+      color: #fff;
+    }
+
+    /* Workspace */
+    .grid-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .panel-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .panel-title {
+      font-size: 1rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .panel-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* Segmented Tab Filter Bar */
+    .tab-bar {
+      display: flex;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--accent-green);
+      color: #040806;
+    }
+
+    .tab-btn:hover:not(.active) {
+      color: #fff;
+      background: var(--bg-elevated);
+    }
+
+    /* Top-Level Page Navigation */
+    .page-nav {
+      display: flex;
+      gap: 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 6px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .page-nav-btn {
+      flex: 1;
+      min-width: 130px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 10px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+    }
+
+    .page-nav-btn.active {
+      background: var(--accent-green);
+      color: #040806;
+    }
+
+    .page-nav-btn:hover:not(.active) {
+      color: #fff;
+      background: var(--bg-elevated);
+    }
+
+    .app-page { display: none; }
+    .app-page.active { display: block; }
+
+    /* News Category Sub-Nav */
+    .news-category-nav {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    /* Calendar Page */
+    .calendar-section { margin-bottom: 22px; }
+    .calendar-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .calendar-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 14px;
+      flex-wrap: wrap;
+    }
+
+    .calendar-row.is-next {
+      border-color: var(--accent-green);
+      background: var(--accent-green-dim);
+    }
+
+    .calendar-row.is-past { opacity: 0.45; }
+
+    .calendar-row-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 180px;
+    }
+
+    .calendar-row-title {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+    }
+
+    .calendar-cat-tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-right: 7px;
+      vertical-align: middle;
+    }
+
+    .calendar-cat-tag.fomc { background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); }
+    .calendar-cat-tag.expiry { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+    .calendar-cat-tag.event { background: rgba(0, 255, 102, 0.12); color: var(--accent-green); }
+
+    .calendar-row-desc {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .calendar-row-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+    }
+
+    .calendar-date-badge {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .calendar-countdown-badge {
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 5px;
+      background: var(--bg-elevated);
+      color: var(--accent-cyan);
+      white-space: nowrap;
+    }
+
+    .calendar-row.is-next .calendar-countdown-badge {
+      background: var(--accent-green);
+      color: #040806;
+    }
+
+    .calendar-disclaimer {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: 10px;
+    }
+
+    /* Table Component */
+    .table-container { overflow-x: auto; }
+
+    .market-table {
+      width: 100%;
+      min-width: 1275px;
+      table-layout: fixed;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    .market-table col.col-ticker { width: 125px; }
+    .market-table col.col-market { width: 90px; }
+    .market-table col.col-source { width: 95px; }
+    .market-table col.col-price { width: 110px; }
+    .market-table col.col-volume { width: 110px; }
+    .market-table col.col-direction { width: 145px; }
+    .market-table col.col-timing { width: 210px; }
+    .market-table col.col-entry { width: 110px; }
+    .market-table col.col-stop { width: 120px; }
+    .market-table col.col-tp { width: 120px; }
+    .market-table col.col-action { width: 100px; }
+
+    .market-table th, .market-table td {
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-subtle);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Entry Timing Status is the 7th column in every table (Stocks, India, Crypto)
+       and holds phrases like "WAIT FOR RELIEF PULLBACK" that were being clipped
+       with an ellipsis. Let this column wrap instead of truncating. */
+    .market-table th:nth-child(7),
+    .market-table td:nth-child(7) {
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+      line-height: 1.3;
+    }
+
+    .market-table th {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .market-table tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 2.5rem !important;
+    }
+
+    /* Badges */
+    .badge-tag {
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+      box-sizing: border-box;
+    }
+
+    .badge-tag.long { background: var(--accent-green-dim); color: var(--accent-green); border: 1px solid rgba(0, 255, 102, 0.35); }
+    .badge-tag.short { background: var(--accent-red-dim); color: var(--accent-red); border: 1px solid rgba(255, 51, 75, 0.35); }
+    .badge-tag.breakout { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.35); }
+    .badge-tag.wait { background: var(--accent-orange-dim); color: var(--accent-orange); border: 1px solid rgba(251, 191, 36, 0.35); }
+    .badge-tag.neutral { background: var(--accent-cyan-dim); color: var(--accent-cyan); border: 1px solid rgba(56, 189, 248, 0.35); }
+    
+    .badge-market {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+      box-sizing: border-box;
+    }
+    .badge-market.futures { background: var(--accent-cyan-dim); color: var(--accent-cyan); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge-market.spot { background: var(--accent-purple-dim); color: var(--accent-purple); border: 1px solid rgba(192, 132, 252, 0.3); }
+    .badge-market.stocks { background: var(--accent-blue-dim); color: var(--accent-blue); border: 1px solid rgba(96, 165, 250, 0.3); }
+    .badge-market.india { background: rgba(251, 146, 60, 0.15); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.3); }
+
+    .timing-status-cell { font-size: 0.72rem; font-weight: 600; }
+    .timing-status-cell.ready { color: var(--accent-green); font-weight: 700; }
+    .timing-status-cell.pullback { color: var(--accent-cyan); font-weight: 700; }
+
+    .btn-inspect {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-inspect:hover {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+      background: var(--accent-green-dim);
+    }
+
+    /* News Grid Layout */
+    .news-view-wrapper { display: flex; flex-direction: column; gap: 12px; }
+    .news-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .news-meta-info { display: flex; align-items: center; gap: 12px; color: var(--text-secondary); }
+    .btn-refresh-news {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-active);
+      color: var(--accent-cyan);
+      padding: 4px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .btn-refresh-news:hover { background: var(--border-active); }
+
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 12px;
+    }
+
+    .news-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .news-card:hover { border-color: var(--border-active); transform: translateY(-2px); }
+
+    .news-header-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+    }
+
+    .news-source-tag {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--accent-cyan);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .news-time-tag { color: var(--text-muted); }
+    .news-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.4;
+      text-decoration: none;
+    }
+    .news-title:hover { color: var(--accent-green); }
+    .news-body-snippet {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .news-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .news-category-tag { color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase; }
+    .news-read-link {
+      color: var(--accent-cyan);
+      text-decoration: none;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .news-read-link:hover { text-decoration: underline; }
+
+    /* Position Calculator */
+    .sizer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 860px) {
+      .sizer-grid { grid-template-columns: 1fr; }
+    }
+
+    .sizer-inputs { display: flex; flex-direction: column; gap: 10px; }
+    .field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .field-box { display: flex; flex-direction: column; gap: 4px; }
+    .field-box label {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .sizer-summary {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      gap: 6px;
+      font-family: var(--font-mono);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      padding-bottom: 4px;
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-label { color: var(--text-secondary); }
+
+    .color-green { color: var(--accent-green); }
+    .color-cyan { color: var(--accent-cyan); }
+    .color-red { color: var(--accent-red); }
+
+    /* Modal / Pop-up */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 6, 10, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .modal-frame {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-active);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 980px;
+      max-height: 94vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9);
+    }
+
+    .modal-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .modal-kicker {
+      font-size: 0.68rem;
+      color: var(--accent-green);
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .modal-top h2 {
+      font-family: var(--font-mono);
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+
+    .btn-dismiss {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.6rem;
+      cursor: pointer;
+    }
+    .btn-dismiss:hover { color: #fff; }
+
+    .modal-content-stack {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .verdict-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--accent-green);
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .verdict-left h3 {
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      color: #fff;
+    }
+
+    .verdict-left p {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .verdict-badge {
+      padding: 5px 14px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    /* TradingView Container */
+    .tv-wrapper {
+      background: #040609;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tv-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-card);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tv-tf-btns {
+      display: flex;
+      gap: 4px;
+    }
+
+    .tv-tf-btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .tv-tf-btn.active {
+      background: var(--accent-green);
+      color: #000;
+      border-color: var(--accent-green);
+    }
+
+    #tv_chart_container {
+      width: 100%;
+      height: 420px;
+      background: #000;
+    }
+
+    /* Canvas Chart */
+    .chart-panel {
+      background: #040609;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .chart-key {
+      display: flex;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .key-node {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--text-secondary);
+    }
+
+    .color-swatch { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .color-swatch.cyan { background: var(--accent-cyan); }
+    .color-swatch.orange { background: var(--accent-orange); }
+    .color-swatch.green { background: var(--accent-green); }
+
+    #candleChart { width: 100%; height: 200px; display: block; }
+
+    /* Rules Analysis Grid */
+    .rules-dual-deck {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .rule-card-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .rule-card-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .rule-tag-id {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      font-family: var(--font-mono);
+    }
+
+    .rule-card-header h3 { font-size: 0.82rem; font-family: var(--font-mono); }
+    .rule-card-desc { font-size: 0.74rem; color: var(--text-muted); margin-bottom: 8px; }
+
+    .stat-rows-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .stat-row-item { display: flex; justify-content: space-between; }
+    .stat-row-item span:first-child { color: var(--text-muted); }
+
+    /* Target Levels */
+    .target-levels-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    @media (max-width: 680px) {
+      .target-levels-grid { grid-template-columns: 1fr; }
+    }
+
+    .level-metric-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+
+    .level-metric-label {
+      display: block;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-bottom: 2px;
+    }
+
+    .level-metric-box strong { font-size: 0.95rem; font-family: var(--font-mono); }
+
+    .modal-action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      padding: 12px 16px;
+      border-radius: 8px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .confluence-readout {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      display: flex;
+      gap: 16px;
+    }
+
+    /* ============ MARKET TERMINAL HERO ============ */
+    .mt-utility-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .mt-brand-mini {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .mt-brand-mini .brand-logo-badge { width: 26px; height: 26px; }
+    .mt-brand-mini .brand-logo-badge svg { width: 16px; height: 16px; }
+    .mt-brand-mini .logo-radar-dot { width: 5px; height: 5px; top: 3px; right: 3px; }
+    .mt-brand-mini .brand-badge { font-size: 0.6rem; }
+
+    .mt-hero {
+      text-align: center;
+      padding: 28px 10px 22px;
+    }
+
+    .mt-hero-title {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: clamp(2rem, 7vw, 3.4rem);
+      letter-spacing: 0.06em;
+      color: var(--accent-cyan);
+      text-shadow: 0 0 18px rgba(56, 189, 248, 0.55), 0 0 40px rgba(56, 189, 248, 0.25);
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    .mt-hero-sub {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.35em;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .mt-hero-datasrc {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .mt-search-card {
+      max-width: 640px;
+      margin: 22px auto 0;
+      background: var(--bg-surface);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 16px;
+      padding: 26px 22px;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.08), inset 0 0 40px rgba(56, 189, 248, 0.03);
+    }
+
+    .mt-search-label {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    #universal-symbol-search.mt-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-active);
+      color: var(--text-primary);
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      margin-bottom: 14px;
+    }
+
+    #universal-symbol-search.mt-input::placeholder { color: var(--text-muted); }
+
+    .mt-search-btn {
+      width: 100%;
+      display: block;
+      background: var(--accent-cyan);
+      color: #041018;
+      border: none;
+      padding: 15px 16px;
+      border-radius: 10px;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 16px;
+    }
+
+    .mt-search-btn:hover {
+      background: #67d3fb;
+      transform: translateY(-1px);
+    }
+
+    .mt-pill-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .mt-pill {
+      flex: 1;
+      min-width: 110px;
+      background: transparent;
+      border: 1px solid var(--border-active);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.03em;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mt-pill:hover { border-color: var(--accent-cyan); color: #fff; }
+
+    .mt-pill.active {
+      background: var(--accent-green-dim);
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+      box-shadow: 0 0 14px rgba(0, 255, 102, 0.18);
+    }
+
+    .mt-search-status {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      text-align: left;
+      min-height: 1.1em;
+      margin-bottom: 8px;
+    }
+
+    .mt-try-hint {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-align: left;
+    }
+
+    .mt-try-hint span { color: var(--text-secondary); }
+
+    .mt-crypto-card {
+      max-width: 640px;
+      margin: 16px auto 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 20px 22px 22px;
+    }
+
+    .mt-crypto-title {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+    }
+
+    .mt-crypto-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .mt-crypto-tile {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mt-crypto-tile:hover { border-color: var(--accent-cyan); transform: translateY(-1px); }
+
+    .mt-crypto-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+
+    .mt-crypto-price {
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .mt-crypto-chg {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .mt-crypto-chg.up { color: var(--accent-green); }
+    .mt-crypto-chg.down { color: var(--accent-red); }
+
+    @media (max-width: 520px) {
+      .mt-hero-sub { letter-spacing: 0.2em; }
+      .mt-crypto-grid { gap: 8px; }
+      .mt-crypto-tile { padding: 10px 10px; }
+      .mt-crypto-price { font-size: 0.98rem; }
+      .mt-crypto-label { font-size: 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Slim Utility Bar -->
+    <div class="mt-utility-bar">
+      <div class="mt-brand-mini">
+        <div class="brand-logo-badge">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 4V28M7 10H10V22H7V10Z" stroke="#00ff66" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="#00ff66" fill-opacity="0.25"/>
+            <path d="M16 2V30M16 7H19V25H16V7Z" stroke="#00ff66" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="#00ff66"/>
+            <path d="M25 8V24M25 12H22V20H25V12Z" stroke="#38bdf8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="#38bdf8" fill-opacity="0.25"/>
+          </svg>
+          <span class="logo-radar-dot"></span>
+        </div>
+        <span>CRYPTO &amp; STOCK SCANNER <span class="brand-badge">PRO</span></span>
+      </div>
+      <div class="system-status">
+        <div class="time-badge">UTC: <strong id="clock">--:--:--</strong></div>
+        <div class="feed-badge" id="ws-status">LIVE STREAM</div>
+        <button id="pwa-install-btn" class="btn-install">Install App</button>
+      </div>
+    </div>
+
+    <!-- ============ MARKET TERMINAL HERO ============ -->
+    <section class="mt-hero">
+      <div class="mt-hero-title">MARKET TERMINAL</div>
+      <div class="mt-hero-sub">US &middot; INDIA &middot; CRYPTO</div>
+      <div class="mt-hero-datasrc">data: yahoo finance + binance &middot; delayed</div>
+
+      <!-- Universal Symbol Search — search ANY US stock, Indian stock, or crypto in one box -->
+      <div class="mt-search-card" id="universal-search-deck">
+        <div class="mt-search-label">SEARCH ANY STOCK (US/INDIA) OR CRYPTO</div>
+        <input type="text" id="universal-symbol-search" class="mt-input" placeholder="e.g. AAPL, RELIANCE, BTCUSDT" style="text-transform: uppercase;" />
+        <button id="universal-search-btn" class="mt-search-btn">SEARCH &amp; OPEN CHART</button>
+
+        <div class="mt-pill-row" id="mt-market-pills">
+          <button type="button" class="mt-pill" data-market="STOCKS">US STOCKS</button>
+          <button type="button" class="mt-pill" data-market="INDIA">INDIAN STOCKS</button>
+          <button type="button" class="mt-pill active" data-market="FUTURES">CRYPTO</button>
+        </div>
+        <select id="universal-market-select" style="display:none;">
+          <option value="AUTO">Auto-Detect</option>
+          <option value="STOCKS">US Stock</option>
+          <option value="INDIA">Indian Stock (NSE)</option>
+          <option value="FUTURES" selected>Crypto (Binance Futures)</option>
+          <option value="SPOT">Crypto (Binance Spot)</option>
+        </select>
+
+        <div class="mt-search-status" id="universal-search-status"></div>
+        <div class="mt-try-hint">try: <span id="mt-try-symbols">BTC, ETH, SOL</span></div>
+      </div>
+
+      <!-- Live Market Ticker — switches between Top Crypto / US Indices / Indian Indices -->
+      <div class="mt-crypto-card">
+        <div class="mt-crypto-title" id="mt-ticker-title">TOP CRYPTO</div>
+        <div class="mt-crypto-grid" id="mt-ticker-grid">
+          <div class="mt-crypto-tile" data-symbol="BTCUSDT">
+            <div class="mt-crypto-label">BITCOIN USD</div>
+            <div class="mt-crypto-price">--</div>
+            <div class="mt-crypto-chg">--</div>
+          </div>
+          <div class="mt-crypto-tile" data-symbol="ETHUSDT">
+            <div class="mt-crypto-label">ETHEREUM USD</div>
+            <div class="mt-crypto-price">--</div>
+            <div class="mt-crypto-chg">--</div>
+          </div>
+          <div class="mt-crypto-tile" data-symbol="SOLUSDT">
+            <div class="mt-crypto-label">SOLANA USD</div>
+            <div class="mt-crypto-price">--</div>
+            <div class="mt-crypto-chg">--</div>
+          </div>
+          <div class="mt-crypto-tile" data-symbol="XRPUSDT">
+            <div class="mt-crypto-label">XRP USD</div>
+            <div class="mt-crypto-price">--</div>
+            <div class="mt-crypto-chg">--</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Top-Level Page Navigation -->
+    <nav class="page-nav" id="page-nav">
+      <button class="page-nav-btn active" data-page="stocks">📈 US Stocks</button>
+      <button class="page-nav-btn" data-page="india">🇮🇳 Indian Stocks</button>
+      <button class="page-nav-btn" data-page="crypto">🪙 Crypto</button>
+      <button class="page-nav-btn" data-page="news">📰 News</button>
+      <button class="page-nav-btn" data-page="calendar">📅 Calendar</button>
+      <button class="page-nav-btn" data-page="sizer">🧮 Position Sizer</button>
+    </nav>
+
+    <!-- ================= US STOCKS PAGE ================= -->
+    <div class="app-page active" id="page-stocks">
+
+      <!-- Controls & Filters Deck (US Stocks) -->
+      <section class="control-deck">
+        <div class="filter-unit">
+          <label for="stocks-tf-select">Timeframe</label>
+          <select id="stocks-tf-select">
+            <option value="15m">15m</option>
+            <option value="1h">1h</option>
+            <option value="4h" selected>4h</option>
+            <option value="1d">1D</option>
+            <option value="1w">1W</option>
+          </select>
+        </div>
+
+        <div class="filter-unit">
+          <label for="stocks-vol-custom-input">24h Volume Filter</label>
+          <div class="vol-wrapper">
+            <div class="vol-input-wrapper">
+              <input type="number" id="stocks-vol-custom-input" value="10" min="0" step="0.5" placeholder="10" />
+              <span class="suffix">M USD</span>
+            </div>
+            <label class="checkbox-label">
+              <input type="checkbox" id="stocks-vol-all-checkbox" /> Any Vol (&gt; $0)
+            </label>
+          </div>
+        </div>
+
+        <button id="run-stocks-scan-btn" class="btn-scan">
+          <span>⚡</span> Run US Stocks Scan (400)
+        </button>
+      </section>
+
+      <!-- Main Workspace -->
+      <main class="grid-container">
+        <div class="panel-box">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">USA Equities — Signals &amp; Execution Timing</h2>
+              <span class="panel-subtitle" id="stocks-scan-summary">Filters volume &amp; computes directional edge</span>
+            </div>
+
+            <!-- Segmented Filter Tabs -->
+            <div class="tab-bar" id="stocks-tab-bar">
+              <button class="tab-btn active" data-tab="ALL">All (<span id="stocks-tab-count-all">0</span>)</button>
+              <button class="tab-btn" data-tab="BREAKOUT">Breakout (<span id="stocks-tab-count-breakout">0</span>)</button>
+              <button class="tab-btn" data-tab="KIJUN">Kijun (<span id="stocks-tab-count-kijun">0</span>)</button>
+              <button class="tab-btn" data-tab="LONG">Long (<span id="stocks-tab-count-long">0</span>)</button>
+              <button class="tab-btn" data-tab="SHORT">Short (<span id="stocks-tab-count-short">0</span>)</button>
+            </div>
+          </div>
+
+          <!-- Stocks Table View -->
+          <div class="table-container">
+            <table class="market-table">
+              <colgroup>
+                <col class="col-ticker">
+                <col class="col-market">
+                <col class="col-source">
+                <col class="col-price">
+                <col class="col-volume">
+                <col class="col-direction">
+                <col class="col-timing">
+                <col class="col-entry">
+                <col class="col-stop">
+                <col class="col-tp">
+                <col class="col-action">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Ticker</th>
+                  <th>Market</th>
+                  <th>Source</th>
+                  <th>Mark Price</th>
+                  <th>24h Volume</th>
+                  <th>Trade Direction</th>
+                  <th>Entry Timing Status</th>
+                  <th>Trigger Entry</th>
+                  <th>Invalidation Stop</th>
+                  <th>Take-Profit (2R)</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="stocks-tbody">
+                <tr>
+                  <td colspan="11" class="empty-state">Adjust parameters and click <strong>Run US Stocks Scan</strong> or enter a manual ticker.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+
+    </div>
+    <!-- ================= END US STOCKS PAGE ================= -->
+
+    <!-- ================= INDIAN STOCKS PAGE ================= -->
+    <div class="app-page" id="page-india">
+
+      <!-- Controls & Filters Deck (Indian Stocks) -->
+      <section class="control-deck">
+        <div class="filter-unit">
+          <label for="india-tf-select">Timeframe</label>
+          <select id="india-tf-select">
+            <option value="15m">15m</option>
+            <option value="1h">1h</option>
+            <option value="4h" selected>4h</option>
+            <option value="1d">1D</option>
+            <option value="1w">1W</option>
+          </select>
+        </div>
+
+        <div class="filter-unit">
+          <label for="india-vol-custom-input">Min Volume Filter</label>
+          <div class="vol-wrapper">
+            <div class="vol-input-wrapper">
+              <input type="number" id="india-vol-custom-input" value="1" min="0" step="0.5" placeholder="1" />
+              <span class="suffix">M INR</span>
+            </div>
+            <label class="checkbox-label">
+              <input type="checkbox" id="india-vol-all-checkbox" checked /> Any Vol (&gt; ₹0)
+            </label>
+          </div>
+        </div>
+
+        <button id="run-india-scan-btn" class="btn-scan" style="background:#fb923c;">
+          <span>⚡</span> Run Indian Stocks Scan (381)
+        </button>
+      </section>
+
+      <!-- Main Workspace -->
+      <main class="grid-container">
+        <div class="panel-box">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">Indian Equities (NSE / BSE) — Ichimoku &amp; Trend Edge</h2>
+              <span class="panel-subtitle" id="india-scan-summary">Scans NIFTY blue-chips and computed setups</span>
+            </div>
+
+            <!-- Segmented Filter Tabs -->
+            <div class="tab-bar" id="india-tab-bar">
+              <button class="tab-btn active" data-tab="ALL">All (<span id="india-tab-count-all">0</span>)</button>
+              <button class="tab-btn" data-tab="BREAKOUT">Breakout (<span id="india-tab-count-breakout">0</span>)</button>
+              <button class="tab-btn" data-tab="KIJUN">Kijun (<span id="india-tab-count-kijun">0</span>)</button>
+              <button class="tab-btn" data-tab="LONG">Long (<span id="india-tab-count-long">0</span>)</button>
+              <button class="tab-btn" data-tab="SHORT">Short (<span id="india-tab-count-short">0</span>)</button>
+            </div>
+          </div>
+
+          <!-- India Table View -->
+          <div class="table-container">
+            <table class="market-table">
+              <colgroup>
+                <col class="col-ticker">
+                <col class="col-market">
+                <col class="col-source">
+                <col class="col-price">
+                <col class="col-volume">
+                <col class="col-direction">
+                <col class="col-timing">
+                <col class="col-entry">
+                <col class="col-stop">
+                <col class="col-tp">
+                <col class="col-action">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Ticker</th>
+                  <th>Market</th>
+                  <th>Source</th>
+                  <th>Mark Price</th>
+                  <th>24h Volume</th>
+                  <th>Trade Direction</th>
+                  <th>Entry Timing Status</th>
+                  <th>Trigger Entry</th>
+                  <th>Invalidation Stop</th>
+                  <th>Take-Profit (2R)</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="india-tbody">
+                <tr>
+                  <td colspan="11" class="empty-state">Adjust parameters and click <strong>Run Indian Stocks Scan</strong> or enter an NSE ticker above.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+
+    </div>
+    <!-- ================= END INDIAN STOCKS PAGE ================= -->
+
+    <!-- ================= CRYPTO PAGE ================= -->
+    <div class="app-page" id="page-crypto">
+
+      <!-- Controls & Filters Deck (Crypto) -->
+      <section class="control-deck">
+        <div class="filter-unit">
+          <label for="crypto-exchange-select">Exchange</label>
+          <select id="crypto-exchange-select">
+            <option value="both" selected>Bybit + Binance</option>
+            <option value="bybit">Bybit Only</option>
+            <option value="binance">Binance Only</option>
+          </select>
+        </div>
+
+        <div class="filter-unit">
+          <label for="crypto-market-type-select">Market Type</label>
+          <select id="crypto-market-type-select">
+            <option value="both" selected>Futures + Spot</option>
+            <option value="futures">Futures (USD-M / Linear)</option>
+            <option value="spot">Spot Market</option>
+          </select>
+        </div>
+
+        <div class="filter-unit">
+          <label for="crypto-tf-select">Timeframe</label>
+          <select id="crypto-tf-select">
+            <option value="15m">15m</option>
+            <option value="1h">1h</option>
+            <option value="4h" selected>4h</option>
+            <option value="1d">1D</option>
+            <option value="1w">1W</option>
+          </select>
+        </div>
+
+        <!-- Volume Filter -->
+        <div class="filter-unit">
+          <label for="crypto-vol-custom-input">24h Volume Filter</label>
+          <div class="vol-wrapper">
+            <div class="vol-input-wrapper">
+              <input type="number" id="crypto-vol-custom-input" value="10" min="0" step="0.5" placeholder="10" />
+              <span class="suffix">M USD</span>
+            </div>
+            <label class="checkbox-label">
+              <input type="checkbox" id="crypto-vol-all-checkbox" /> Any Vol (&gt; $0)
+            </label>
+          </div>
+        </div>
+
+        <button id="run-crypto-scan-btn" class="btn-scan">
+          <span>⚡</span> Run Crypto Scan
+        </button>
+      </section>
+
+      <!-- Main Workspace -->
+      <main class="grid-container">
+        <div class="panel-box">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">Crypto Futures &amp; Spot — Signals &amp; Execution Timing</h2>
+              <span class="panel-subtitle" id="crypto-scan-summary">Filters volume &amp; computes directional edge</span>
+            </div>
+
+            <!-- Segmented Filter Tabs -->
+            <div class="tab-bar" id="crypto-tab-bar">
+              <button class="tab-btn active" data-tab="ALL">All (<span id="crypto-tab-count-all">0</span>)</button>
+              <button class="tab-btn" data-tab="FUTURES">Futures (<span id="crypto-tab-count-futures">0</span>)</button>
+              <button class="tab-btn" data-tab="SPOT">Spot (<span id="crypto-tab-count-spot">0</span>)</button>
+              <button class="tab-btn" data-tab="BREAKOUT">Breakout (<span id="crypto-tab-count-breakout">0</span>)</button>
+              <button class="tab-btn" data-tab="KIJUN">Kijun (<span id="crypto-tab-count-kijun">0</span>)</button>
+              <button class="tab-btn" data-tab="LONG">Long (<span id="crypto-tab-count-long">0</span>)</button>
+              <button class="tab-btn" data-tab="SHORT">Short (<span id="crypto-tab-count-short">0</span>)</button>
+            </div>
+          </div>
+
+          <!-- Crypto Table View -->
+          <div class="table-container">
+            <table class="market-table">
+              <colgroup>
+                <col class="col-ticker">
+                <col class="col-market">
+                <col class="col-source">
+                <col class="col-price">
+                <col class="col-volume">
+                <col class="col-direction">
+                <col class="col-timing">
+                <col class="col-entry">
+                <col class="col-stop">
+                <col class="col-tp">
+                <col class="col-action">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Ticker</th>
+                  <th>Market</th>
+                  <th>Source</th>
+                  <th>Mark Price</th>
+                  <th>24h Volume</th>
+                  <th>Trade Direction</th>
+                  <th>Entry Timing Status</th>
+                  <th>Trigger Entry</th>
+                  <th>Invalidation Stop</th>
+                  <th>Take-Profit (2R)</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="crypto-tbody">
+                <tr>
+                  <td colspan="11" class="empty-state">Adjust parameters and click <strong>Run Crypto Scan</strong> or search manually.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+
+    </div>
+    <!-- ================= END CRYPTO PAGE ================= -->
+
+    <!-- ================= NEWS PAGE ================= -->
+    <div class="app-page" id="page-news">
+      <div class="panel-box">
+        <div class="panel-header-row">
+          <div>
+            <h2 class="panel-title" id="news-page-heading">Crypto Market News (1h Sync)</h2>
+            <span class="panel-subtitle" id="news-page-sub">Live headlines from major crypto publishers</span>
+          </div>
+        </div>
+
+        <div class="news-category-nav" id="news-category-nav">
+          <button class="page-nav-btn active" data-news-cat="CRYPTO" style="flex:none; min-width:0; padding:8px 14px;">⚡ Crypto News (<span id="tab-count-news">0</span>)</button>
+          <button class="page-nav-btn" data-news-cat="FOMC" style="flex:none; min-width:0; padding:8px 14px;">🏛 FOMC / Fed (<span id="tab-count-fomc">0</span>)</button>
+          <button class="page-nav-btn" data-news-cat="STOCKS" style="flex:none; min-width:0; padding:8px 14px;">📈 US Stock News (<span id="tab-count-stocknews">0</span>)</button>
+          <button class="page-nav-btn" data-news-cat="ECONOMY" style="flex:none; min-width:0; padding:8px 14px;">📊 Inflation &amp; Jobs (<span id="tab-count-econ">0</span>)</button>
+        </div>
+
+        <div class="news-view-wrapper" id="news-feed-view">
+          <div class="news-toolbar">
+            <div class="news-meta-info">
+              <span>Auto-refresh: <strong>Every 1 Hour</strong></span>
+              <span>Next sync in: <strong id="news-timer" class="color-cyan">60m 00s</strong></span>
+              <span id="news-status-txt">Updated</span>
+            </div>
+            <button class="btn-refresh-news" id="btn-manual-news-refresh">⚡ Refresh Now</button>
+          </div>
+          <div class="news-grid" id="news-grid-cards">
+            <div class="empty-state" style="grid-column: 1/-1;">Loading headlines...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ================= END NEWS PAGE ================= -->
+
+    <!-- ================= CALENDAR PAGE ================= -->
+    <div class="app-page" id="page-calendar">
+      <div class="panel-box">
+        <div class="panel-header-row">
+          <div>
+            <h2 class="panel-title">Key Dates Calendar</h2>
+            <span class="panel-subtitle">FOMC meetings, crypto derivatives expiry, and major macro catalysts</span>
+          </div>
+        </div>
+
+        <div class="calendar-section">
+          <div class="calendar-list" id="unified-calendar-list"></div>
+          <div class="calendar-disclaimer">FOMC dates are the Fed's official schedule; expiry dates are computed (last Friday of the month). Named events are curated from public reporting.</div>
+        </div>
+      </div>
+    </div>
+    <!-- ================= END CALENDAR PAGE ================= -->
+
+    <!-- ================= POSITION SIZER PAGE ================= -->
+    <div class="app-page" id="page-sizer">
+      <div class="panel-box">
+        <div class="panel-header-row">
+          <div>
+            <h2 class="panel-title">Risk-Based Position Sizer</h2>
+            <span class="panel-subtitle">Calculates position sizing for Crypto, US Equities &amp; Indian Stocks</span>
+          </div>
+        </div>
+        <div class="sizer-grid">
+          <div class="sizer-inputs">
+            <div class="field-box">
+              <label for="calc-equity">Account Equity ($ / ₹)</label>
+              <input type="number" id="calc-equity" value="10000" step="100" />
+            </div>
+            <div class="field-pair">
+              <div class="field-box">
+                <label for="calc-risk-pct">Risk Per Trade (%)</label>
+                <input type="number" id="calc-risk-pct" value="1.0" step="0.1" />
+              </div>
+              <div class="field-box">
+                <label for="calc-leverage">Leverage (x)</label>
+                <input type="number" id="calc-leverage" value="1" step="1" />
+              </div>
+            </div>
+            <div class="field-pair">
+              <div class="field-box">
+                <label for="calc-entry">Entry Price</label>
+                <input type="number" id="calc-entry" value="65000" step="0.01" />
+              </div>
+              <div class="field-box">
+                <label for="calc-stop">Stop Loss</label>
+                <input type="number" id="calc-stop" value="63800" step="0.01" />
+              </div>
+            </div>
+          </div>
+          <div class="sizer-summary">
+            <div class="summary-row"><span class="summary-label">Max Risk Capital:</span><strong id="out-risk">$100.00</strong></div>
+            <div class="summary-row"><span class="summary-label">Stop-Loss Distance:</span><strong id="out-stop-dist" class="color-cyan">1.85%</strong></div>
+            <div class="summary-row"><span class="summary-label">Position Shares / Qty:</span><strong id="out-qty" class="color-green">0.0833</strong></div>
+            <div class="summary-row"><span class="summary-label">Notional Position Value:</span><strong id="out-value">$5,416.67</strong></div>
+            <div class="summary-row"><span class="summary-label">Required Margin:</span><strong id="out-margin">$541.67</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ================= END POSITION SIZER PAGE ================= -->
+
+    <!-- Deep-Dive Modal with TradingView Chart -->
+    <div class="modal-backdrop" id="analysis-modal">
+      <div class="modal-frame">
+        <div class="modal-top">
+          <div>
+            <div class="modal-kicker" id="modal-source">US EQUITIES (NASDAQ / NYSE) · 4H TIMEFRAME</div>
+            <h2 id="modal-symbol">NVDA</h2>
+          </div>
+          <button class="btn-dismiss" id="modal-close-btn">&times;</button>
+        </div>
+
+        <div class="modal-content-stack">
+          <div class="verdict-banner" id="strategy-banner">
+            <div class="verdict-left">
+              <h3 id="modal-signal-title">ENTER LONG (GRADE A+)</h3>
+              <p id="modal-timing-text">Immediate breakout confirmation: price closed above Kumo cloud and 30-period resistance.</p>
+            </div>
+            <div class="verdict-badge" id="modal-direction-badge">LONG</div>
+          </div>
+
+          <!-- Embedded TradingView Interactive Chart -->
+          <div class="tv-wrapper">
+            <div class="tv-toolbar">
+              <span>Interactive TradingView Terminal</span>
+              <div class="tv-tf-btns" id="tv-tf-group">
+                <button class="tv-tf-btn" data-tv-tf="15">15m</button>
+                <button class="tv-tf-btn active" data-tv-tf="60">1h</button>
+                <button class="tv-tf-btn" data-tv-tf="D">1D</button>
+                <button class="tv-tf-btn" data-tv-tf="W">1W</button>
+                <button class="tv-tf-btn" data-tv-tf="M">1Y</button>
+              </div>
+            </div>
+            <div id="tv_chart_container"></div>
+          </div>
+
+          <!-- Canvas Secondary Indicator Visualizer -->
+          <div class="chart-panel">
+            <div class="chart-key">
+              <span class="key-node"><span class="color-swatch cyan"></span> Tenkan (9)</span>
+              <span class="key-node"><span class="color-swatch orange"></span> Kijun (26)</span>
+              <span class="key-node"><span class="color-swatch green"></span> Candlestick / Cloud</span>
+            </div>
+            <canvas id="candleChart" width="800" height="200"></canvas>
+          </div>
+
+          <!-- Comprehensive Technical & Ichimoku Rules -->
+          <div class="rules-dual-deck">
+            <div class="rule-card-item">
+              <div class="rule-card-header">
+                <span class="rule-tag-id">ICHIMOKU</span>
+                <h3>Cloud (Kumo) &amp; TK Cross</h3>
+              </div>
+              <p class="rule-card-desc">Tenkan-sen, Kijun-sen, Senkou Span A/B alignment.</p>
+              <div class="stat-rows-stack" id="rule-ichimoku-stats"></div>
+            </div>
+
+            <div class="rule-card-item">
+              <div class="rule-card-header">
+                <span class="rule-tag-id">RULE A</span>
+                <h3>MTF MA 5 / 10 / 30 Stack</h3>
+              </div>
+              <p id="rule-a-text" class="rule-card-desc">Short, medium, and base EMA alignment.</p>
+              <div class="stat-rows-stack" id="rule-a-stats"></div>
+            </div>
+
+            <div class="rule-card-item">
+              <div class="rule-card-header">
+                <span class="rule-tag-id">RULE B</span>
+                <h3>Smart S/R &amp; Zones</h3>
+              </div>
+              <p id="rule-b-text" class="rule-card-desc">30-period swing clusters.</p>
+              <div class="stat-rows-stack" id="rule-b-stats"></div>
+            </div>
+
+            <div class="rule-card-item">
+              <div class="rule-card-header">
+                <span class="rule-tag-id">RULE C</span>
+                <h3>RSI &amp; MACD</h3>
+              </div>
+              <p class="rule-card-desc">Overbought/oversold and MACD momentum.</p>
+              <div class="stat-rows-stack" id="rule-c-stats"></div>
+            </div>
+          </div>
+
+          <div class="target-levels-grid">
+            <div class="level-metric-box"><span class="level-metric-label">TRIGGER ENTRY</span><strong id="modal-entry-price" class="color-cyan">$0.00</strong></div>
+            <div class="level-metric-box"><span class="level-metric-label">INVALIDATION STOP</span><strong id="modal-stop-price" class="color-red">$0.00</strong></div>
+            <div class="level-metric-box"><span class="level-metric-label">TAKE-PROFIT TARGET (2R)</span><strong id="modal-tp-price" class="color-green">$0.00</strong></div>
+          </div>
+
+          <div class="modal-action-bar">
+            <div class="confluence-readout">
+              <span>Setup Grade: <strong id="modal-grade" class="color-green">GRADE A+</strong></span>
+              <span>Target R:R: <strong class="color-cyan">1 : 2.0+</strong></span>
+            </div>
+            <button id="apply-to-sizer-btn" class="btn-scan">
+              Pre-fill into Position Sizer &darr;
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 0. CORS Proxy Fallback Chain
+    const CORS_PROXIES = [
+      function(url) { return "https://corsproxy.io/?url=" + encodeURIComponent(url); },
+      function(url) { return "https://api.allorigins.win/raw?url=" + encodeURIComponent(url); },
+      function(url) { return "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(url); },
+      function(url) { return "https://thingproxy.freeboard.io/fetch/" + url; }
+    ];
+
+    function fetchWithTimeout(url, ms) {
+      const controller = new AbortController();
+      const timer = setTimeout(function() { controller.abort(); }, ms);
+      return fetch(url, { signal: controller.signal }).finally(function() {
+        clearTimeout(timer);
+      });
+    }
+
+    function fetchViaProxy(targetUrl) {
+      function tryIndex(i) {
+        if (i >= CORS_PROXIES.length) {
+          return Promise.reject(new Error("All CORS proxies failed for " + targetUrl));
+        }
+        const proxiedUrl = CORS_PROXIES[i](targetUrl);
+        return fetchWithTimeout(proxiedUrl, 8000)
+          .then(function(res) {
+            if (!res.ok) throw new Error("HTTP " + res.status + " from proxy " + i);
+            // Read as text and pre-validate it's real JSON so a proxy returning an HTML
+            // error page (common failure mode) correctly falls through to the next proxy
+            // instead of silently killing the whole request.
+            return res.text().then(function(text) {
+              JSON.parse(text); // throws if not valid JSON
+              return { ok: true, json: function() { return Promise.resolve(JSON.parse(text)); } };
+            });
+          })
+          .catch(function() {
+            return tryIndex(i + 1);
+          });
+      }
+      return tryIndex(0);
+    }
+
+    // 0b. Same-origin Yahoo proxy (Netlify Function), when deployed on Netlify.
+    // Fetching Yahoo Finance server-side avoids CORS entirely, so it's far more
+    // reliable than the public CORS-proxy chain above — that chain is now only a
+    // fallback for hosts without serverless functions (e.g. GitHub Pages).
+    // Adapted from the working Lovable rebuild's market.server.ts.
+    let netlifyFnAvailable = true;
+    const yahooClientCache = new Map(); // path -> { at, data }
+    const YAHOO_CACHE_TTL = 300000; // 5 minutes, matches the Lovable implementation
+
+    function fetchYahooJSON(kind, params) {
+      const cacheKey = kind + ":" + JSON.stringify(params);
+      const hit = yahooClientCache.get(cacheKey);
+      if (hit && Date.now() - hit.at < YAHOO_CACHE_TTL) {
+        return Promise.resolve(hit.data);
+      }
+
+      function viaFunction() {
+        if (!netlifyFnAvailable) return Promise.reject(new Error("netlify function unavailable"));
+        const qs = Object.keys(params).map(function(k) { return k + "=" + encodeURIComponent(params[k]); }).join("&");
+        return fetchWithTimeout("/.netlify/functions/yahoo-proxy?kind=" + kind + "&" + qs, 8000)
+          .then(function(res) {
+            if (!res.ok) {
+              // A 404 here means the function isn't deployed (plain static host) —
+              // stop trying it for the rest of the session instead of retrying every call.
+              if (res.status === 404) netlifyFnAvailable = false;
+              throw new Error("HTTP " + res.status + " from netlify function");
+            }
+            return res.json();
+          });
+      }
+
+      function viaCorsProxyChain() {
+        let targetUrl;
+        if (kind === "chart") {
+          targetUrl = "https://query1.finance.yahoo.com/v8/finance/chart/" + encodeURIComponent(params.symbol) + "?range=" + params.range + "&interval=" + params.interval;
+        } else {
+          targetUrl = "https://query1.finance.yahoo.com/v1/finance/search?q=" + encodeURIComponent(params.q) + "&quotesCount=20&newsCount=0";
+        }
+        return fetchViaProxy(targetUrl).then(function(res) { return res.json(); });
+      }
+
+      return viaFunction()
+        .catch(viaCorsProxyChain)
+        .then(function(data) {
+          // Yahoo sometimes returns HTTP 200 with an error payload instead of data
+          // (rate limiting, delisted symbol, etc). Treat that the same as a network
+          // failure so callers correctly show "no data" instead of a blank chart.
+          if (kind === "chart" && (!data || !data.chart || data.chart.error || !data.chart.result || !data.chart.result[0])) {
+            throw new Error((data && data.chart && data.chart.error && data.chart.error.description) || "no chart result for " + params.symbol);
+          }
+          yahooClientCache.set(cacheKey, { at: Date.now(), data: data });
+          return data;
+        });
+    }
+
+    // 1. PWA Setup — embeds real icons (base64) directly in the manifest so a single
+    // static HTML file is installable with no extra hosted assets required. Also wires
+    // up the "Install App" button, which previously had no click handler at all.
+    (function initPWAAssets() {
+      const manifestObj = {
+        name: "Crypto, US & Indian Stock Scanner",
+        short_name: "MarketScanner",
+        id: "./",
+        start_url: "./index.html",
+        scope: "./",
+        display: "standalone",
+        background_color: "#06080c",
+        theme_color: "#06080c",
+        icons: [
+          { src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAEV0lEQVR4nO3bTW7TUACFUadCEZUYshK2wQ66wO6AbbAShpVaZQIDBGrTJLXj9xffcxbgutL9/JxQdtNg9p+//O59D9RzeHna9b6H17rejLEzTX2jaP6DjZ5LWsfQ7IcZPku0CqH6DzF81qgdQrWLGz4l1Qqh+EUNn5pKh3BX8mLGT22lN1akJsOnhxKnweoTwPjppcT2VgVg/PS2doNXB2D8jGLNFq8KwPgZzbWbXByA8TOqa7a5KADjZ3RLNzo7AOPnVizZ6qwAjJ9bM3ezHwZg/NyqOdst+qcQcGsuBuDpz637aMNnAzB+tuLSlr0CEe1kAJ7+bM25TTsBiPYuAE9/turUtp0ARHsTgKc/W3e8cScA0f4H4OlPitdbdwIQTQBEu5smrz/k+bd5JwDRBEA0ARBNAETb+QBMMicA0QRAtE+9b2DrDs8Pq6+xv38scCec4jNAJSWGf0wI5XkFqqDG+GteN5kACqs9UhGUJQCiCaCgVk9np0A5AiCaAIgmAKIJgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiCYAon3qfQOXHJ4fVl9jf/9Y4E7YqiEDKDH842sJgVOGewUqOf4W1+W2DRVA7ZGKgGNDBQCtDRNAq6ezU4DXhgkAehAA0QRANAEQTQBEEwDRBEA0ARBNAEQTANEEQDQBEE0ARBMA0QRAtCH/TzBj+fbj1+pr/Pz+tcCdlCcAziox/ONrjRaCVyBOKjn+Fte9lgB4p/ZIR4pAAEQTAG+0ejqPcgoIgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiCYAogmAaHeHl6dd75uAHg4vTzsnANEEQDQBEE0ARLubpr8fBnrfCLT0b/NOAKIJgGj/A/AaRIrXW3cCEO1NAE4Btu54404Aor0LwCnAVp3athOAaCcDcAqwNec27QQg2tkAnAJsxaUtXzwBWkawv3+8+Z+zhd/h5/ev1a7d4+d8tOGoV6BWA61pC79Dq/HP8WEAWzwFatrC7zDSQNeYs93Z495//vJ73e3Md3h+KHq9HqPcwu/w7cevotdrGdbcB/eip3vLCKapzIh6P5G38DuUCGHE8U/TwgCmqX0EsMTSV/bFH4J9PcqortnmVd8CiYDRXLvJq78GFQGjWLPFVf8OIAJ6W7vB1f8QJgJ6KbG9ouP1DREtlHzoFv1TCKcBtZXeWLXBOg0oqdbDtfoTWwisUfutot0fugmBBVq9Tjd/ZxcCl7T+HNn1Q6sYmKa+X54M962NKLZttG8K/wB6nyEMQFlTOgAAAABJRU5ErkJggg==", sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAOJ0lEQVR4nO3dzY0bRxuF0ZIgCBbgpSNxGs5AASoDp+FItBQgYTb2YkCrNT+cbrK766265yTwsWsGcx8WKX/vGiV9/O33f3u/BoA9PPz49q73a+A5P5RODDzAI4HQh0M/gbEH2EYUHM8BH8DgA+xLEOzPge7A4AOcSxDczwHeyOgD1CAGbuPQNjD6ALWJgfUc1BuMPsCYxMB1DucVhh9gDkLgZQ5lwegDzE0M/OQgmuEHSCMEwgPA8ANkSw6ByAc3/AAsJYZA1AMbfgCuSQqBiAc1/ABskRAC73u/gKMZfwC2StiOaQsn4YcHwPFmvQ2Y7qEMPwBHmC0EpvoIwPgDcJTZNmaKmpnthwJAbTPcBgx/A2D8ATjbDNszdADM8AMAYEyjb9CQVxijHzoAcxnxI4HhbgCMPwDVjLhNQwXAiAcMQIbRNmqIK4vRDhWAbCN8JFD+BsD4AzCaEbardACMcIAA8JLqG1Y2AKofHAC8pfKWlQyAygcGAFtU3bRyAVD1oADgVhW3rVQAVDwgANhDtY0rEwDVDgYA9lZp60oEQKUDAYAjVdm87gFQ5SAA4CwVtq9rAFQ4AADoofcGdguA3g8OAL313MIuAWD8AeBRr008PQCMPwD8qsc2nhoAxh8AXnb2Rp4WAMYfAK47cytPCQDjDwDrnLWZ3f87AADA+Q4PAO/+AWCbM7bz0AAw/gBwm6M39LAAMP4AcJ8jt9R3AAAg0CEB4N0/AOzjqE3dPQCMPwDs64ht3TUAjD8AHGPvjfUdAAAItFsAePcPAMfac2t3CQDjDwDn2GtzfQQAAIHuDgDv/gHgXHtsrxsAAAh0VwB49w8Afdy7wTcHgPEHgL7u2WIfAQBAoJsCwLt/AKjh1k12AwAAgTYHgHf/AFDLLdvsBgAAAm0KAO/+AaCmrRvtBgAAAq0OAO/+AaC2LVvtBgAAAq0KAO/+AWAMazfbDQAABBIAABDozQBw/Q8AY1mz3W4AACDQ1QDw7h8AxvTWhrsBAIBAAgAAAr0aAK7/AWBs17bcDQAABBIAABDoxQBw/Q8Ac3ht090AAEAgAQAAgZ4FgOt/AJjLS9vuBgAAAgkAAAgkAAAg0C8B4PN/AJjT0413AwAAgQQAAAQSAAAQ6P8A8Pk/AMxtufVuAAAgkAAAgEACAAACCQAACPS+NV8ABIAUl813AwAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABDonf8GAADkcQMAAIEEAAAE+tD7BQDrPXz/3PslXPXx05feLwFYyXcAoLjqo3+NIIC6BAAUNfLwPyUEoB7fAYCCZhr/1uZ7HpiBGwAoJGEo3QZADW4AoIiE8W8t5zmhOgEABaSNYtrzQkUCADpLHcPU54YqBAAABBIA0FH6u+D054eeBAB0YvweOQfoQwAAQCABAB141/sr5wHnEwAAEEgAAEAgAQAnc939MucC5xIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEOhD7xfAeg/fP/d+Ca/6+OlL75cAwAYCoLjKo7/09HUKAoDaBEBRowz/ay6vXwgA1OQ7AAWNPv5LMz0LwEzcABQy61i6DQCoxw1AEbOO/1LCMwKMQgAUkDSMSc8KUJkA6CxxEBOfGaAaAQAAgQRAR8nvhJOfHaACAdCJAXQGAD0JAAAIJAA68M73J2cB0IcAAIBAAgAAAgmAk7nyfs6ZAJxPAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAEAgAQAAgQQAAAQSAAAQSAAAQCABAACBBAAABBIAABBIAABAIAEAAIEEAAAEEgAAEEgAAECgD71fAADb/Pn3194v4VX//PVH75fASgIAYACVR3/p6esUBHUJAIDCRhn+11xevxCox3cAAIoaffyXZnqWWbgBAChm1rF0G1CLGwCAQmYd/6WEZxyBAAAoImkYk561KgEAUEDiICY+cyUCAAACCQCAzpLfCSc/e28CAKAjA+gMehEAABBIAAB04p3vT87ifAIAAAIJAAAIJAAAOnDl/ZwzOZcAAIBAAgAAAgkAAAgkAAAgkAAAgEACAAACCQAACCQAACCQAACAQAIAAAIJAAAIJAAAIJAAAIBAAgAAAgkAAAgkAAAgkAAAgEACAAACCQAACCQAACCQAACAQAIAAAIJAAAIJAAAIJAAAIBAAgAAAgkAAAgkAAAgkAAAgEACAAACCQAACCQAACCQAACAQAIAAAIJAAAIJAAAIJAAAIBAAgAAAgkAAAgkAAAgkAAAgEACAAACCQAACCQAACCQAACAQAIAAAIJAAAIJAAAIJAAAIBAAgAAAgkAAAgkAAAgkAAAgEACAAACCQAACCQAACCQAACAQAIAAAIJAAAIJAAAIJAAAIBAAgAAAgkAAAgkAAAgkAAAgEACAAACCQAACCQAACCQAACAQAIAAAIJAAAIJAAAIJAAAIBAAgAAAgkAAAgkAAAgkAAAgEACAAACCQAACCQAACCQAACAQAIAAAIJAAAIJAAAIJAAAIBAAgAAAgkAAAgkAAAgkAAAgEACAAACCQAACCQAACCQAACAQAIAAAIJAAAIJAAAIJAAAIBAAgAAAgkAAAgkAAAgkAAAgEACAAACCQAACPT+4ce3d71fBABwnocf3965AQCAQAIAAAIJAAAIJAAAIJAAAIBAAgAAAgkAAAj0vrXHfw/Y+4UAAMe7bL4bAAAIJAAAIJAAAIBAAgAAAv0fAL4ICABzW269GwAACCQAACCQAACAQL8EgO8BAMCcnm68GwAACCQAACCQAACAQM8CwPcAAGAuL227GwAACCQAACDQiwHgYwAAmMNrm+4GAAACCQAACPRqAPgYAADGdm3L3QAAQCABAACBrgaAjwEAYExvbbgbAAAI9GYAuAUAgLGs2W43AAAQSAAAQKBVAeBjAAAYw9rNdgMAAIFWB4BbAACobctWuwEAgECbAsAtAADUtHWj3QAAQKDNAeAWAABquWWb3QAAQKCbAsAtAADUcOsmuwEAgEA3B4BbAADo654tvusGQAQAQB/3brCPAE728dOX3i+hnLQzSXvetdLO5Z+//uj9EspxJue6OwDcAgDAufbYXjcAABBolwBwC8Ct0q59eZnfA1z/r7fX5u52AyAC1vPHDr8DtGb02G7PrfURAAAE2jUA3AKs5x2gM0h//ov0c3AL4AzW2ntjd78BEAHrJf/hS372pfRzSH/+i+QBTH72LY7Y1kM+AhABXOOPPq35PcD4r3XUpvoOQGf+COJ3gNaMIec7LADcAqyXNABJz7pF2rmkPe9aSRGQ9Kz3OHJLDx/pj7/9/u/R/xuzePj+ufdLOIw/+OvM/DvQmt+Dtf78+2vvl3AYw7/e0W+kT3mXLgK2mW0E/NHfbrbfgdb8HtxithAw/uudcYvuOwAFzfSHcqZnOdNs5zbb85xlpsGc6Vlmcdrn9G4BbjPiO0F/7Pc14u9Aa34P9jbibYDRv81Z36E79Yt6IuA+lYfAH/tzVP4daM3vwVkqx4DRv8+ZX6A//Zv6IgAAnjv7X8+d/h0A/zwQAH7VYxu7fAlQBADAo16b2O1fAYgAANL13MKu/wxQBACQqvcGdv/vAPQ+AAA4W4Xt6x4ArdU4CAA4Q5XNKxEArdU5EAA4SqWtKxMArdU6GADYU7WNKxUArdU7IAC4V8VtKxcArdU8KAC4RdVNKxkArdU9MABYq/KWlQ2A1mofHABcU33DSgdAa/UPEACeGmG7yr/AJf9PggBUNsLwX5S/AVga6WAByDLaRg0VAK2Nd8AAzG/EbRruBS/5SACAnkYc/ovhbgCWRj54AMY2+gYNHQCtjf8DAGA8M2zP8A+w5CMBAI40w/BfDH8DsDTTDwaAWmbbmKkeZsltAAB7mG34L6Z8qCUhAMAtZh3+i6k+AnjJ7D9AAPaXsB3TP+CS2wAArkkY/ouYB10SAgAsJQ3/RdwDLwkBgGyJw38R++BLQgAgS/LwX8QfwJIQAJib4f/JQbxCDADMwei/zKG8QQgAjMnwX+dwNhADALUZ/fUc1I3EAEANRv82Dm0HYgDgXEb/fg7wAIIAYF8Gf38O9ASCAGAbg388B9yJKAB4ZOz7cOhFCQRgFga+pv8AyPTwWa8GQ2AAAAAASUVORK5CYII=", sizes: "512x512", type: "image/png", purpose: "any" },
+          { src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAC4klEQVR4nO3dQUojQRiA0WQYQoQsPYnX8AY5oDfwGp7EfSCbzEoQkdE23XSs7711dfMv6qvOIlDb3f5w2UDUn7UHgDUJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBI+7v2ABXn03HS+t3d00KT8N52tz9c1h5idFM3/3tCWJafQAu7ZvPP8Tz/J4AFzbV5RbAcAZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkDX1FkmuJ+MqwX4CfXCpxPh1dRhEzZACuJeK7hgvAtURMMVwAMIUASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaUP/HZrPPTy/Tlr/8ni/0CTr8wWImbr53575yXO/gQBCrt3EI0YggIi5Nu9oEQiANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQJgDSBECaAEgTAGkCIE0ApAmANAGQNlwAu7unm3nPLc3y8ng/wyTzvedWDBcATDFkANeemHOd3HO8a85Zrj29Rzv9N5vNZrvbHy5rD7GU8+k4af2cm+2jW5rl4fl10voRN/6boQOArwz5Ewi+SwCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZD2D3jmS0E6f0DcAAAAAElFTkSuQmCC", sizes: "192x192", type: "image/png", purpose: "maskable" },
+          { src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAKFklEQVR4nO3awU0bCxSGUfOEEJFYppK0kQ4okA7SRirJHokNb/Oih4hJMHZm5s53TgPzjxfcz8hXN7d3zwcAIOWftQcAAMsTAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIOh67QHAeZ4e71d57s2nh1WeC1zG1c3t3fPaI4DTrXX4jxEDMI8AgGG2dPhfEwIwh98AwCBbPv6Hw/b3Af8TADDElOM6ZSfUCQAYYNpRnbYXigQAbNzUYzp1N1QIAAAIEgCwYdO/RU/fD3smAAAgSADARu3l2/Ne3gP2RgAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAICg67UHsD9Pj/eLP/Pm08PizwSYTABwMWsc/mPPFgMAfyYAONuah/+Yn3uEAMDb/AaAs2zt+L+05W0AaxMAfNiEAzthI8AaBAAfMumwTtoKsBQBwMkmHtSJmwH+JgEAAEECgJNM/iY9eTvApQkAAAgSALzbHr5B7+EdAC5BAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAARdrz0AYJov334s/szvXz8v/kz2TQAAvNMah//Ys8UAlyAAAP5gzcN/zM89QoBz+A0AwG9s7fi/tOVtbJ8AAHjDhAM7YSPbJAAAjph0WCdtZTsEAMArEw/qxM2sSwAAQJAAAHhh8jfpydtZngAAgCABAPCfPXyD3sM7sAwBAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgC8282nh7UnnG3SO0za+juT3uP7189rTzjbHt6BZQgAAAgSAAAQJAA4yaR/5742cfvEzS9N3D/5X+iTt7M8AUDCxEM0nc98WY4/pxIAnMwf9mX5vJfnmFIgAPiQSUdp0ta3THuHaXuPmRQBk7ayHQKAD5vwR37Cxvea8i5Tdr7HhMM6YSPbdHVze/e89ghme3q8X3vCL/Z0hF7b4ud9OOz7M//y7cfaE37h8HMuAcDFbOUw7fkQvbSVz/tw6HzmWwkBx59LEABc3BqHqXKAjlkrBMqf+Roh4OhzaQIAAIL8CBAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABAkAAAgCABAABBAgAAggQAAAQJAAAIEgAAEPQvQp+wxUaY7OUAAAAASUVORK5CYII=", sizes: "512x512", type: "image/png", purpose: "maskable" }
+        ]
+      };
+      const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/json' });
+      document.getElementById('pwa-manifest').setAttribute('href', URL.createObjectURL(manifestBlob));
+
+      // Also set an apple-touch-icon (iOS Safari ignores the manifest for its icon).
+      const appleIcon = document.createElement('link');
+      appleIcon.rel = 'apple-touch-icon';
+      appleIcon.href = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAEV0lEQVR4nO3bTW7TUACFUadCEZUYshK2wQ66wO6AbbAShpVaZQIDBGrTJLXj9xffcxbgutL9/JxQdtNg9p+//O59D9RzeHna9b6H17rejLEzTX2jaP6DjZ5LWsfQ7IcZPku0CqH6DzF81qgdQrWLGz4l1Qqh+EUNn5pKh3BX8mLGT22lN1akJsOnhxKnweoTwPjppcT2VgVg/PS2doNXB2D8jGLNFq8KwPgZzbWbXByA8TOqa7a5KADjZ3RLNzo7AOPnVizZ6qwAjJ9bM3ezHwZg/NyqOdst+qcQcGsuBuDpz637aMNnAzB+tuLSlr0CEe1kAJ7+bM25TTsBiPYuAE9/turUtp0ARHsTgKc/W3e8cScA0f4H4OlPitdbdwIQTQBEu5smrz/k+bd5JwDRBEA0ARBNAETb+QBMMicA0QRAtE+9b2DrDs8Pq6+xv38scCec4jNAJSWGf0wI5XkFqqDG+GteN5kACqs9UhGUJQCiCaCgVk9np0A5AiCaAIgmAKIJgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiCYAon3qfQOXHJ4fVl9jf/9Y4E7YqiEDKDH842sJgVOGewUqOf4W1+W2DRVA7ZGKgGNDBQCtDRNAq6ezU4DXhgkAehAA0QRANAEQTQBEEwDRBEA0ARBNAEQTANEEQDQBEE0ARBMA0QRAtCH/TzBj+fbj1+pr/Pz+tcCdlCcAziox/ONrjRaCVyBOKjn+Fte9lgB4p/ZIR4pAAEQTAG+0ejqPcgoIgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiCYAogmAaHeHl6dd75uAHg4vTzsnANEEQDQBEE0ARLubpr8fBnrfCLT0b/NOAKIJgGj/A/AaRIrXW3cCEO1NAE4Btu54404Aor0LwCnAVp3athOAaCcDcAqwNec27QQg2tkAnAJsxaUtXzwBWkawv3+8+Z+zhd/h5/ev1a7d4+d8tOGoV6BWA61pC79Dq/HP8WEAWzwFatrC7zDSQNeYs93Z495//vJ73e3Md3h+KHq9HqPcwu/w7cevotdrGdbcB/eip3vLCKapzIh6P5G38DuUCGHE8U/TwgCmqX0EsMTSV/bFH4J9PcqortnmVd8CiYDRXLvJq78GFQGjWLPFVf8OIAJ6W7vB1f8QJgJ6KbG9ouP1DREtlHzoFv1TCKcBtZXeWLXBOg0oqdbDtfoTWwisUfutot0fugmBBVq9Tjd/ZxcCl7T+HNn1Q6sYmKa+X54M962NKLZttG8K/wB6nyEMQFlTOgAAAABJRU5ErkJggg==';
+      document.head.appendChild(appleIcon);
+    })();
+
+    // 1b. Install App button — captures the browser's install prompt (Chrome/Edge/
+    // Android) and triggers it on click. The button stays hidden until the browser
+    // actually signals the app is installable, and hides again once installed.
+    (function initInstallButton() {
+      const installBtn = document.getElementById('pwa-install-btn');
+      if (!installBtn) return;
+      let deferredPrompt = null;
+      const isStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+      if (isStandalone) {
+        installBtn.style.display = 'none';
+        return;
+      }
+      const ua = navigator.userAgent || '';
+      const isIOS = /iPad|iPhone|iPod/.test(ua);
+      // iOS Safari never fires beforeinstallprompt — show the button immediately so
+      // tapping it can walk the user through the manual "Add to Home Screen" steps.
+      installBtn.style.display = isIOS ? '' : 'none';
+
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = '';
+      });
+
+      installBtn.addEventListener('click', function() {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.finally(function() {
+            deferredPrompt = null;
+            installBtn.style.display = 'none';
+          });
+          return;
+        }
+        if (isIOS) {
+          alert('To install: tap the Share icon in Safari, then "Add to Home Screen".');
+        } else {
+          alert('Install isn\'t available yet in this browser/session. On Chrome/Edge, check the browser menu for "Install App…" — it can take a few seconds to appear after the page loads.');
+        }
+      });
+
+      window.addEventListener('appinstalled', function() {
+        deferredPrompt = null;
+        installBtn.style.display = 'none';
+      });
+    })();
+
+    // 2. Universal Clock
+    function updateClock() {
+      const el = document.getElementById("clock");
+      if (el) el.textContent = new Date().toISOString().substring(11, 19);
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // 3. Risk Position Sizer
+    function calculatePosition() {
+      const equity = parseFloat(document.getElementById("calc-equity").value) || 0;
+      const riskPct = parseFloat(document.getElementById("calc-risk-pct").value) || 0;
+      const leverage = parseFloat(document.getElementById("calc-leverage").value) || 1;
+      const entry = parseFloat(document.getElementById("calc-entry").value) || 0;
+      const stop = parseFloat(document.getElementById("calc-stop").value) || 0;
+
+      const riskAmount = equity * (riskPct / 100);
+      const stopDist = Math.abs(entry - stop);
+      const stopDistPct = entry > 0 ? (stopDist / entry) * 100 : 0;
+      const qty = stopDist > 0 ? riskAmount / stopDist : 0;
+      const notional = qty * entry;
+      const margin = leverage > 0 ? notional / leverage : 0;
+
+      document.getElementById("out-risk").textContent = '$' + riskAmount.toFixed(2);
+      document.getElementById("out-stop-dist").textContent = stopDistPct.toFixed(2) + '%';
+      document.getElementById("out-qty").textContent = qty.toFixed(4);
+      document.getElementById("out-value").textContent = '$' + notional.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById("out-margin").textContent = '$' + margin.toFixed(2);
+    }
+    document.querySelectorAll(".sizer-inputs input").forEach(function(i) {
+      i.addEventListener("input", calculatePosition);
+    });
+    calculatePosition();
+
+    // 4. Technical Analysis & Ichimoku Engine
+    function getMidpoint(candles, period, offset) {
+      offset = offset || 0;
+      if (candles.length < period + offset) return 0;
+      const slice = candles.slice(candles.length - period - offset, candles.length - offset);
+      const highs = slice.map(function(c) { return c.high; });
+      const lows = slice.map(function(c) { return c.low; });
+      return (Math.max.apply(null, highs) + Math.min.apply(null, lows)) / 2;
+    }
+
+    function calculateEMA(prices, period) {
+      if (prices.length < period) return prices[prices.length - 1] || 0;
+      const k = 2 / (period + 1);
+      let ema = prices.slice(0, period).reduce(function(a, b) { return a + b; }, 0) / period;
+      for (let i = period; i < prices.length; i++) {
+        ema = prices[i] * k + ema * (1 - k);
+      }
+      return ema;
+    }
+
+    function emaSeries(prices, period) {
+      const k = 2 / (period + 1);
+      const result = [prices[0]];
+      for (let i = 1; i < prices.length; i++) {
+        result.push(prices[i] * k + result[i - 1] * (1 - k));
+      }
+      return result;
+    }
+
+    function calculateRSI(closes, period) {
+      period = period || 14;
+      if (closes.length < period + 1) return 50;
+      let gains = 0, losses = 0;
+      for (let i = closes.length - period; i < closes.length; i++) {
+        const diff = closes[i] - closes[i - 1];
+        if (diff >= 0) gains += diff; else losses -= diff;
+      }
+      const avgGain = gains / period;
+      const avgLoss = losses / period;
+      if (avgLoss === 0) return 100;
+      const rs = avgGain / avgLoss;
+      return 100 - (100 / (1 + rs));
+    }
+
+    function calculateMACD(closes) {
+      const ema12 = emaSeries(closes, 12);
+      const ema26 = emaSeries(closes, 26);
+      const macdLine = closes.map(function(_, i) { return ema12[i] - ema26[i]; });
+      const signalLine = emaSeries(macdLine, 9);
+      const last = macdLine.length - 1;
+      return {
+        macd: macdLine[last],
+        signal: signalLine[last],
+        histogram: macdLine[last] - signalLine[last]
+      };
+    }
+
+    function analyzeMarket(candles, symbol, source, marketType, volume24h) {
+      const n = candles.length;
+      if (n < 52) return null;
+
+      const close = candles[n - 1].close;
+      const closes = candles.map(function(c) { return c.close; });
+
+      // Full Ichimoku Cloud Parameters
+      const tenkan = getMidpoint(candles, 9);
+      const kijun = getMidpoint(candles, 26);
+      const spanA = (tenkan + kijun) / 2;
+      const spanB = getMidpoint(candles, 52);
+      const cloudTop = Math.max(spanA, spanB);
+      const cloudBottom = Math.min(spanA, spanB);
+
+      const tkCross = tenkan > kijun ? "BULLISH" : tenkan < kijun ? "BEARISH" : "NEUTRAL";
+      const cloudStatus = close > cloudTop ? "ABOVE" : close < cloudBottom ? "BELOW" : "INSIDE";
+
+      // Rule A: MA Stack (5 / 10 / 30)
+      const ma5 = calculateEMA(closes, 5);
+      const ma10 = calculateEMA(closes, 10);
+      const ma30 = calculateEMA(closes, 30);
+      let ruleAStatus = "MIXED";
+      if (ma5 > ma10 && ma10 > ma30) ruleAStatus = "BULL_ALIGNED";
+      else if (ma5 < ma10 && ma10 < ma30) ruleAStatus = "BEAR_ALIGNED";
+
+      // Rule B: Smart S/R Clusters (30-period)
+      const recentHighs = candles.slice(n - 30).map(function(c) { return c.high; });
+      const recentLows = candles.slice(n - 30).map(function(c) { return c.low; });
+      const majorRes = Math.max.apply(null, recentHighs);
+      const majorSupp = Math.min.apply(null, recentLows);
+      const distToRes = ((majorRes - close) / close) * 100;
+      const distToSupp = ((close - majorSupp) / close) * 100;
+
+      // Rule C: Momentum Indicators (RSI 14 / MACD 12,26,9)
+      const rsi14 = calculateRSI(closes, 14);
+      const rsiStatus = rsi14 >= 70 ? "OVERBOUGHT" : rsi14 <= 30 ? "OVERSOLD" : "NEUTRAL";
+      const macdData = calculateMACD(closes);
+      const macdTrend = macdData.histogram > 0 ? "BULLISH" : "BEARISH";
+
+      // Direction & Timing Strategy based on Ichimoku + MA
+      let direction = "WAIT / NO TRADE";
+      let timingStatus = "Consolidating";
+      let timingDetail = "Price inside Kumo cloud or MA structure mixed.";
+      let triggerEntry = close;
+      let invalidationStop = close * 0.97;
+      let grade = "GRADE C";
+      let isBreakout = false;
+      let isKijun = false;
+
+      const isBullTrend = cloudStatus === "ABOVE" && ruleAStatus === "BULL_ALIGNED" && tkCross === "BULLISH";
+      const isBearTrend = cloudStatus === "BELOW" && ruleAStatus === "BEAR_ALIGNED" && tkCross === "BEARISH";
+
+      if (isBullTrend) {
+        direction = "LONG";
+        invalidationStop = Math.min(kijun, majorSupp);
+
+        if (close >= majorRes * 0.995) {
+          timingStatus = "BREAKOUT CONFIRMED";
+          timingDetail = "Immediate breakout above resistance & Kumo cloud.";
+          triggerEntry = close;
+          grade = "GRADE A+";
+          isBreakout = true;
+        } else if (Math.abs(close - kijun) / close <= 0.012) {
+          timingStatus = "KIJUN PULLBACK (BEST ENTRY)";
+          timingDetail = "Optimal entry: price tested Kijun ($" + kijun.toFixed(2) + ") with bullish support.";
+          triggerEntry = close;
+          grade = "GRADE A+";
+          isKijun = true;
+        } else {
+          timingStatus = "WAIT FOR PULLBACK";
+          timingDetail = "Bullish structure active. Wait for pullback towards Kijun ($" + kijun.toFixed(2) + ").";
+          triggerEntry = kijun;
+          grade = "GRADE A";
+        }
+      } else if (isBearTrend) {
+        direction = "SHORT";
+        invalidationStop = Math.max(kijun, majorRes);
+
+        if (close <= majorSupp * 1.005) {
+          timingStatus = "BREAKDOWN CONFIRMED";
+          timingDetail = "Enter short on breakdown close below support.";
+          triggerEntry = close;
+          grade = "GRADE A+";
+          isBreakout = true;
+        } else if (Math.abs(close - kijun) / close <= 0.012) {
+          timingStatus = "KIJUN RE-TEST (BEST ENTRY)";
+          timingDetail = "Optimal short timing: price re-tested Kijun ($" + kijun.toFixed(2) + ") from below.";
+          triggerEntry = close;
+          grade = "GRADE A+";
+          isKijun = true;
+        } else {
+          timingStatus = "WAIT FOR RELIEF PULLBACK";
+          timingDetail = "Bearish alignment intact. Wait for bounce towards Kijun ($" + kijun.toFixed(2) + ").";
+          triggerEntry = kijun;
+          grade = "GRADE A";
+        }
+      }
+
+      const riskDist = Math.abs(triggerEntry - invalidationStop);
+      const takeProfit = direction === "LONG"
+        ? triggerEntry + (riskDist * 2.0)
+        : triggerEntry - (riskDist * 2.0);
+
+      return {
+        symbol: symbol, source: source, marketType: marketType, price: close, volume24h: volume24h, candles: candles,
+        tenkan: tenkan, kijun: kijun, spanA: spanA, spanB: spanB, cloudStatus: cloudStatus, tkCross: tkCross,
+        ma5: ma5, ma10: ma10, ma30: ma30, ruleAStatus: ruleAStatus,
+        majorRes: majorRes, majorSupp: majorSupp, distToRes: distToRes, distToSupp: distToSupp,
+        rsi14: rsi14, rsiStatus: rsiStatus, macd: macdData.macd, macdSignal: macdData.signal, macdHistogram: macdData.histogram, macdTrend: macdTrend,
+        direction: direction, timingStatus: timingStatus, timingDetail: timingDetail,
+        triggerEntry: triggerEntry, invalidationStop: invalidationStop, takeProfit: takeProfit,
+        grade: grade, isBreakout: isBreakout, isKijun: isKijun
+      };
+    }
+
+    // 5. Shared Yahoo Quote & Candle Fetcher
+    function fetchYahooChartFull(symbol, interval) {
+      let yRange = "60d";
+      let yInterval = "60m";
+
+      if (interval === "15m") { yRange = "30d"; yInterval = "15m"; }
+      else if (interval === "1h") { yRange = "60d"; yInterval = "60m"; }
+      else if (interval === "4h") { yRange = "60d"; yInterval = "60m"; }
+      else if (interval === "1d") { yRange = "1y"; yInterval = "1d"; }
+      else if (interval === "1w") { yRange = "2y"; yInterval = "1wk"; }
+
+      return fetchYahooJSON("chart", { symbol: symbol, range: yRange, interval: yInterval })
+        .then(function(json) {
+          const chart = json.chart && json.chart.result && json.chart.result[0];
+          if (!chart || !chart.meta) return null;
+          const meta = chart.meta;
+          const quotes = chart.indicators && chart.indicators.quote && chart.indicators.quote[0];
+          const opens = (quotes && quotes.open) || [];
+          const highs = (quotes && quotes.high) || [];
+          const lows = (quotes && quotes.low) || [];
+          const closes = (quotes && quotes.close) || [];
+
+          const candles = [];
+          for (let i = 0; i < closes.length; i++) {
+            if (closes[i] !== null && highs[i] !== null && lows[i] !== null) {
+              candles.push({
+                open: parseFloat(opens[i] || closes[i]),
+                high: parseFloat(highs[i]),
+                low: parseFloat(lows[i]),
+                close: parseFloat(closes[i])
+              });
+            }
+          }
+
+          const price = meta.regularMarketPrice || (closes.length ? closes[closes.length - 1] : 0);
+          const volShares = meta.regularMarketVolume || 10000000;
+
+          return { symbol: symbol, price: price, volume: price * volShares, candles: candles.slice(-90) };
+        })
+        .catch(function(e) {
+          console.warn("Chart fetch failed for " + symbol, e.message);
+          return null;
+        });
+    }
+
+    // Global/US Indices — shown on the US Stocks tab
+    const US_INDICES = [
+      { symbol: "^GSPC", label: "S&P 500" },
+      { symbol: "^IXIC", label: "NASDAQ" },
+      { symbol: "^DJI", label: "DOW" },
+      { symbol: "^RUT", label: "RUSSELL 2000" },
+      { symbol: "^FTSE", label: "FTSE 100" },
+      { symbol: "^VIX", label: "VIX" }
+    ];
+
+    // Indian Indices — shown on the Indian Stocks tab
+    const INDIA_INDICES = [
+      { symbol: "^NSEI", label: "NIFTY 50" },
+      { symbol: "^BSESN", label: "SENSEX" },
+      { symbol: "^NSEBANK", label: "BANK NIFTY" },
+      { symbol: "NIFTY_FIN_SERVICE.NS", label: "NIFTY FIN SERVICE" },
+      { symbol: "^CNXIT", label: "NIFTY IT" }
+    ];
+
+    function fetchIndicesInto(indices, trackId) {
+      const track = document.getElementById(trackId);
+      if (!track) return;
+      Promise.all(indices.map(function(idx) {
+        return fetchYahooChartFull(idx.symbol, "1d").then(function(r) {
+          return r ? { symbol: idx.symbol, price: r.price } : null;
+        }).catch(function() { return null; });
+      })).then(function(results) {
+        track.innerHTML = indices.map(function(idx, i) {
+          const q = results[i];
+          if (!q) return '<div class="index-chip"><span class="index-chip-label">' + idx.label + '</span><span class="index-chip-value color-muted">N/A</span></div>';
+          return '<div class="index-chip"><span class="index-chip-label">' + idx.label + '</span><span class="index-chip-value color-green">' +
+            q.price.toLocaleString(undefined, { maximumFractionDigits: 2 }) + '</span></div>';
+        }).join('');
+      });
+    }
+
+    function fetchGlobalIndices() {
+      fetchIndicesInto(US_INDICES, "index-ticker-track");
+      fetchIndicesInto(INDIA_INDICES, "india-index-ticker-track");
+    }
+    // Note: fetchGlobalIndices() is no longer called on load — the old per-page index
+    // strips were removed as duplicates of the "US INDICES" / "INDIAN INDICES" live
+    // ticker now shown in the Market Terminal hero at the top of the page.
+
+    // Asset Universes
+    const US_STOCKS_UNIVERSE = [
+      "AAPL", "MSFT", "GOOGL", "GOOG", "AMZN", "NVDA", "META", "TSLA", "BRK.B", "UNH",
+      "LLY", "JPM", "V", "XOM", "AVGO", "MA", "PG", "HD", "COST", "MRK",
+      "ABBV", "CVX", "PEP", "KO", "ADBE", "WMT", "CRM", "BAC", "MCD", "TMO",
+      "CSCO", "ACN", "LIN", "ABT", "NFLX", "AMD", "DHR", "WFC", "DIS", "TXN",
+      "VZ", "PM", "NKE", "CMCSA", "INTC", "COP", "BMY", "UPS", "RTX", "UNP",
+      "NEE", "QCOM", "HON", "T", "LOW", "SPGI", "AMGN", "IBM", "INTU", "CAT",
+      "GE", "BA", "SBUX", "GS", "ELV", "DE", "AMAT", "PLD", "BLK", "MDT",
+      "ISRG", "AXP", "ADI", "GILD", "TJX", "BKNG", "MMC", "SYK", "VRTX", "LMT",
+      "MO", "MDLZ", "ADP", "CVS", "REGN", "CI", "SLB", "ZTS", "SO", "NOC",
+      "PGR", "EOG", "DUK", "BDX", "ETN", "APD", "TGT", "AON", "ITW", "CL",
+      "MU", "CSX", "FDX", "SHW", "EQIX", "WM", "NSC", "MPC", "PSX", "KLAC",
+      "FCX", "EMR", "GD", "PXD", "HUM", "MET", "MCK", "PNC", "USB", "AIG",
+      "SNPS", "CDNS", "ORLY", "ROP", "MAR", "APH", "ECL", "ADSK", "CTAS", "CME",
+      "F", "GM", "SRE", "D", "AEP", "PSA", "TRV", "MSI", "O", "OXY",
+      "AFL", "PAYX", "KMB", "SPG", "TT", "MCHP", "IDXX", "MNST", "CTVA", "A",
+      "EW", "ALL", "CMI", "STZ", "HAL", "EA", "YUM", "KMI", "ROST", "DXCM",
+      "FTNT", "WMB", "VRSK", "ODFL", "XEL", "EXC", "ED", "PEG", "ES", "WEC",
+      "DTE", "FIS", "GLW", "ANSS", "CARR", "PPG", "HES", "GIS", "AMP", "DOW",
+      "KHC", "SYY", "DD", "IQV", "FAST", "ON", "EXR", "CTSH", "HSY", "ILMN",
+      "KEYS", "VLO", "LHX", "ALGN", "NUE", "RSG", "AVB", "EIX", "CDW", "WY",
+      "ZBH", "HIG", "CBRE", "DAL", "EBAY", "GPN", "TSCO", "CHTR", "ULTA", "WBD",
+      "K", "IT", "LYB", "MTD", "GWW", "DVN", "DLTR", "FANG", "STT", "BALL",
+      "BAX", "AWK", "WTW", "EFX", "RMD", "XYL", "VMC", "MLM", "ANET", "TDY",
+      "BR", "NTRS", "CAH", "CMS", "CINF", "J", "STE", "HOLX", "RJF", "NDAQ",
+      "ETR", "FE", "PPL", "CFG", "HPQ", "LUV", "UAL", "AAL", "CCL", "NCLH",
+      "RCL", "EXPE", "HLT", "MGM", "WYNN", "LVS", "PARA", "FOXA", "NWSA", "OMC",
+      "IPG", "LYV", "TTWO", "MTCH", "PINS", "SNAP", "UBER", "LYFT", "ABNB", "DASH",
+      "ZM", "DOCU", "CRWD", "ZS", "PANW", "OKTA", "DDOG", "NET", "MDB", "SNOW",
+      "PLTR", "RBLX", "U", "HOOD", "SQ", "PYPL", "SHOP", "SPOT", "ROKU", "CHWY",
+      "ETSY", "W", "CVNA", "CPRT", "VRSN", "AKAM", "JNPR", "FFIV", "NTAP", "WDC",
+      "STX", "HPE", "DELL", "LOGI", "GLOB", "EPAM", "GDDY", "TWLO", "BILL", "TEAM",
+      "WDAY", "NOW", "VEEV", "TYL", "FICO", "MANH", "PTC", "TRMB", "ZBRA", "NATI",
+      "ENPH", "SEDG", "FSLR", "RUN", "PLUG", "BE", "CHPT", "LCID", "RIVN", "NIO",
+      "XPEV", "LI", "GPRO", "IRBT", "BBY", "GME", "AMC", "BB", "NOK", "ERIC",
+      "VOD", "BABA", "JD", "PDD", "BIDU", "TME", "BILI", "NTES", "SE", "GRAB",
+      "CPNG", "MELI", "KR", "ACI", "WBA", "DG", "GPS", "ANF", "AEO", "URBN",
+      "LULU", "DECK", "CROX", "SKX", "UAA", "VFC", "PVH", "RL", "TPR", "COLM",
+      "HAS", "MAT", "NWL", "CHD", "EL", "NEM", "AEE", "ATO", "CNP", "CMA",
+      "FITB", "HBAN", "KEY", "MTB", "RF", "SIVB", "ZION", "PBCT", "WBS", "SNV",
+      "PACW", "FRC", "ALLY", "DFS", "COF", "SYF", "C", "TFC", "MS", "SCHW"
+    ];
+    const INDIA_STOCKS_UNIVERSE = [
+      "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "ICICIBANK.NS", "INFY.NS", "HINDUNILVR.NS", "ITC.NS", "SBIN.NS", "BHARTIARTL.NS", "KOTAKBANK.NS",
+      "LT.NS", "AXISBANK.NS", "BAJFINANCE.NS", "ASIANPAINT.NS", "MARUTI.NS", "HCLTECH.NS", "SUNPHARMA.NS", "TITAN.NS", "ULTRACEMCO.NS", "WIPRO.NS",
+      "NESTLEIND.NS", "ONGC.NS", "NTPC.NS", "POWERGRID.NS", "M&M.NS", "TATAMOTORS.NS", "TATASTEEL.NS", "JSWSTEEL.NS", "ADANIENT.NS", "ADANIPORTS.NS",
+      "COALINDIA.NS", "BAJAJFINSV.NS", "HDFCLIFE.NS", "SBILIFE.NS", "DRREDDY.NS", "DIVISLAB.NS", "CIPLA.NS", "EICHERMOT.NS", "BRITANNIA.NS", "GRASIM.NS",
+      "HEROMOTOCO.NS", "BPCL.NS", "IOC.NS", "INDUSINDBK.NS", "TECHM.NS", "UPL.NS", "SHREECEM.NS", "HINDALCO.NS", "BAJAJ-AUTO.NS", "APOLLOHOSP.NS",
+      "TATACONSUM.NS", "LTIM.NS", "ADANIGREEN.NS", "ADANIPOWER.NS", "DMART.NS", "PIDILITIND.NS", "DABUR.NS", "GODREJCP.NS", "MARICO.NS", "COLPAL.NS",
+      "BERGEPAINT.NS", "HAVELLS.NS", "VOLTAS.NS", "CROMPTON.NS", "WHIRLPOOL.NS", "BLUESTARCO.NS", "SIEMENS.NS", "ABB.NS", "CUMMINSIND.NS", "BOSCHLTD.NS",
+      "BHEL.NS", "BEL.NS", "HAL.NS", "MAZDOCK.NS", "COCHINSHIP.NS", "GRSE.NS", "IRCTC.NS", "CONCOR.NS", "GAIL.NS", "PETRONET.NS",
+      "IGL.NS", "MGL.NS", "GUJGASLTD.NS", "TORNTPOWER.NS", "TATAPOWER.NS", "NHPC.NS", "SJVN.NS", "PFC.NS", "RECLTD.NS", "IRFC.NS",
+      "IREDA.NS", "RVNL.NS", "RITES.NS", "NBCC.NS", "NCC.NS", "GMRINFRA.NS", "LTTS.NS", "PERSISTENT.NS", "COFORGE.NS", "MPHASIS.NS",
+      "ZENSAR.NS", "CYIENT.NS", "SONATSOFTW.NS", "KPITTECH.NS", "TATAELXSI.NS", "NAUKRI.NS", "JUSTDIAL.NS", "INDIAMART.NS", "ZOMATO.NS", "PAYTM.NS",
+      "NYKAA.NS", "POLICYBZR.NS", "DELHIVERY.NS", "CARTRADE.NS", "EASEMYTRIP.NS", "MAPMYINDIA.NS", "HAPPSTMNDS.NS", "ROUTE.NS", "LATENTVIEW.NS", "TANLA.NS",
+      "NAZARA.NS", "SAREGAMA.NS", "PVRINOX.NS", "TIPS.NS", "BALAJITELE.NS", "SHEMAROO.NS", "DISHTV.NS", "SUNTV.NS", "ZEEL.NS", "NETWORK18.NS",
+      "TV18BRDCST.NS", "JAGRAN.NS", "HTMEDIA.NS", "DBCORP.NS", "MUTHOOTFIN.NS", "MANAPPURAM.NS", "CHOLAFIN.NS", "SHRIRAMFIN.NS", "BAJAJHLDNG.NS", "LICHSGFIN.NS",
+      "PNBHOUSING.NS", "CANFINHOME.NS", "GICRE.NS", "NIACL.NS", "ICICIGI.NS", "ICICIPRULI.NS", "HDFCAMC.NS", "UTIAMC.NS", "ABSLAMC.NS", "MOTILALOFS.NS",
+      "IIFL.NS", "ANGELONE.NS", "CDSL.NS", "BSE.NS", "MCX.NS", "CAMS.NS", "KFINTECH.NS", "IEX.NS", "POWERINDIA.NS", "THERMAX.NS",
+      "KEC.NS", "KALPATPOWR.NS", "SKFINDIA.NS", "TIMKEN.NS", "SCHAEFFLER.NS", "GRINDWELL.NS", "CARBORUNIV.NS", "AIAENG.NS", "SUPREMEIND.NS", "ASTRAL.NS",
+      "FINPIPE.NS", "APLAPOLLO.NS", "RATNAMANI.NS", "WELCORP.NS", "JINDALSTEL.NS", "SAIL.NS", "NMDC.NS", "MOIL.NS", "VEDL.NS", "HINDZINC.NS",
+      "NATIONALUM.NS", "HINDCOPPER.NS", "JSPL.NS", "RAIN.NS", "GRAPHITE.NS", "HEG.NS", "GUJALKALI.NS", "TATACHEM.NS", "DEEPAKNTR.NS", "AARTIIND.NS",
+      "SRF.NS", "PIIND.NS", "BAYERCROP.NS", "RALLIS.NS", "DHANUKA.NS", "INSECTICID.NS", "GODREJAGRO.NS", "KANSAINER.NS", "INDIGOPNTS.NS", "AKZOINDIA.NS",
+      "JSWENERGY.NS", "JSWINFRA.NS", "APOLLOTYRE.NS", "MRF.NS", "CEAT.NS", "JKTYRE.NS", "BALKRISIND.NS", "EXIDEIND.NS", "AMARAJABAT.NS", "MOTHERSON.NS",
+      "ENDURANCE.NS", "SUNDRMFAST.NS", "SUBROS.NS", "UNOMINDA.NS", "VARROC.NS", "GABRIEL.NS", "LUMAXTECH.NS", "JAMNAAUTO.NS", "ESCORTS.NS", "ACE.NS",
+      "TIMETECHNO.NS", "TITAGARH.NS", "RAILTEL.NS", "IRCON.NS", "ENGINERSIN.NS", "CAPACITE.NS", "PNCINFRA.NS", "KNRCON.NS", "ASHOKA.NS", "IRB.NS",
+      "HGINFRA.NS", "DBL.NS", "PSPPROJECT.NS", "WELSPUNIND.NS", "TRIDENT.NS", "VARDHMAN.NS", "RAYMOND.NS", "ARVIND.NS", "KPRMILL.NS", "GOKEX.NS",
+      "INDORAMA.NS", "JBCHEPHARM.NS", "ALKEM.NS", "TORNTPHARM.NS", "LUPIN.NS", "CADILAHC.NS", "ZYDUSLIFE.NS", "AUROPHARMA.NS", "GLENMARK.NS", "IPCALAB.NS",
+      "LAURUSLABS.NS", "GRANULES.NS", "NATCOPHARM.NS", "AJANTPHARM.NS", "ERIS.NS", "ABBOTINDIA.NS", "PFIZER.NS", "SANOFI.NS", "GLAXO.NS", "FORTIS.NS",
+      "MAXHEALTH.NS", "NH.NS", "METROPOLIS.NS", "LALPATHLAB.NS", "THYROCARE.NS", "KIMS.NS", "RAINBOW.NS", "ASTERDM.NS", "SHALBY.NS", "POLYMED.NS",
+      "JBMA.NS", "HCG.NS", "FEDERALBNK.NS", "RBLBANK.NS", "IDFCFIRSTB.NS", "BANDHANBNK.NS", "AUBANK.NS", "EQUITASBNK.NS", "UJJIVANSFB.NS", "DCBBANK.NS",
+      "SOUTHBANK.NS", "KARURVYSYA.NS", "CUB.NS", "CENTRALBK.NS", "INDIANB.NS", "PNB.NS", "BANKBARODA.NS", "CANBK.NS", "UNIONBANK.NS", "UCOBANK.NS",
+      "IOB.NS", "MAHABANK.NS", "BANKINDIA.NS", "YESBANK.NS", "IDBI.NS", "TRENT.NS", "ABFRL.NS", "SHOPERSTOP.NS", "VMART.NS", "VIPIND.NS",
+      "RELAXO.NS", "BATAINDIA.NS", "LIBERTSHOE.NS", "SAFARI.NS", "VGUARD.NS", "ORIENTELEC.NS", "POLYCAB.NS", "KEI.NS", "FINCABLES.NS", "CENTURYPLY.NS",
+      "GREENPLY.NS", "KAJARIACER.NS", "CERA.NS", "SOMANY.NS", "ORIENTCEM.NS", "JKCEMENT.NS", "RAMCOCEM.NS", "HEIDELBERG.NS", "DALMIABHA.NS", "ACC.NS",
+      "AMBUJACEM.NS", "PRISMCEM.NS", "NUVOCO.NS", "STARCEMENT.NS", "ABCAPITAL.NS", "SUZLON.NS", "INOXWIND.NS", "BEML.NS", "DEEPAKFERT.NS", "CHAMBLFERT.NS",
+      "COROMANDEL.NS", "GNFC.NS", "GSFC.NS", "RCF.NS", "NFL.NS", "NATIONALFERT.NS", "PIRAMALENT.NS", "LAXMIMACH.NS", "ELGIEQUIP.NS", "GRAUWEIL.NS",
+      "WABAG.NS", "VATECH.NS", "TRIVENI.NS", "KIRLOSENG.NS", "KIRLOSBROS.NS", "GREAVESCOT.NS", "ELECTCAST.NS", "SANDHAR.NS", "MINDACORP.NS", "FIEMIND.NS",
+      "HERITGFOOD.NS", "VADILALIND.NS", "HATSUN.NS", "PRABHAT.NS", "KRBL.NS", "LTFOODS.NS", "GOKUL.NS", "AGROTECH.NS", "BALRAMCHIN.NS", "DHAMPUR.NS",
+      "TRIVENIENG.NS", "DWARKESH.NS", "RENUKA.NS", "EIDPARRY.NS", "UGARSUGAR.NS", "DCMSHRIRAM.NS", "CHAMBAL.NS", "AAVAS.NS", "APTUS.NS", "HOMEFIRST.NS",
+      "INDIASHLTR.NS", "REPCOHOME.NS", "CREDITACC.NS", "SPANDANA.NS", "UGROCAP.NS", "FUSION.NS", "FIVESTAR.NS", "CSBBANK.NS", "DHANI.NS", "SBFC.NS",
+      "POONAWALLA.NS"
+    ];
+
+    // Crypto Public API Fetchers
+    function getBinanceFutures(minVol) {
+      return fetchWithTimeout("https://fapi.binance.com/fapi/v1/ticker/24hr", 10000)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          return data
+            .filter(function(d) { return d.symbol.endsWith("USDT") && (minVol === 0 || parseFloat(d.quoteVolume) >= minVol); })
+            .sort(function(a, b) { return parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume); })
+            .map(function(d) { return { symbol: d.symbol, volume: parseFloat(d.quoteVolume), source: "Binance", marketType: "FUTURES" }; });
+        });
+    }
+
+    function getBinanceSpot(minVol) {
+      return fetchWithTimeout("https://api.binance.com/api/v3/ticker/24hr", 10000)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          return data
+            .filter(function(d) { return d.symbol.endsWith("USDT") && (minVol === 0 || parseFloat(d.quoteVolume) >= minVol); })
+            .sort(function(a, b) { return parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume); })
+            .map(function(d) { return { symbol: d.symbol, volume: parseFloat(d.quoteVolume), source: "Binance", marketType: "SPOT" }; });
+        });
+    }
+
+    function getBybitFutures(minVol) {
+      return fetchWithTimeout("https://api.bybit.com/v5/market/tickers?category=linear", 10000)
+        .then(function(res) { return res.json(); })
+        .then(function(json) {
+          const list = json.result ? json.result.list || [] : [];
+          return list
+            .filter(function(d) { return d.symbol.endsWith("USDT") && (minVol === 0 || parseFloat(d.turnover24h) >= minVol); })
+            .sort(function(a, b) { return parseFloat(b.turnover24h) - parseFloat(a.turnover24h); })
+            .map(function(d) { return { symbol: d.symbol, volume: parseFloat(d.turnover24h), source: "Bybit", marketType: "FUTURES" }; });
+        });
+    }
+
+    function getBybitSpot(minVol) {
+      return fetchWithTimeout("https://api.bybit.com/v5/market/tickers?category=spot", 10000)
+        .then(function(res) { return res.json(); })
+        .then(function(json) {
+          const list = json.result ? json.result.list || [] : [];
+          return list
+            .filter(function(d) { return d.symbol.endsWith("USDT") && (minVol === 0 || parseFloat(d.turnover24h) >= minVol); })
+            .sort(function(a, b) { return parseFloat(b.turnover24h) - parseFloat(a.turnover24h); })
+            .map(function(d) { return { symbol: d.symbol, volume: parseFloat(d.turnover24h), source: "Bybit", marketType: "SPOT" }; });
+        });
+    }
+
+    function fetchCandles(symbol, interval, source, marketType) {
+      if (marketType === "STOCKS" || marketType === "INDIA") {
+        return fetchYahooChartFull(symbol, interval).then(function(r) { return r ? r.candles : []; });
+      }
+
+      if (source === "Binance") {
+        const baseUrl = marketType === "FUTURES" ? "https://fapi.binance.com/fapi/v1/klines" : "https://api.binance.com/api/v3/klines";
+        const tfMap = { "15m": "15m", "1h": "1h", "4h": "4h", "1d": "1d", "1w": "1w" };
+        const fullUrl = baseUrl + '?symbol=' + symbol + '&interval=' + (tfMap[interval] || "4h") + '&limit=90';
+        return fetchWithTimeout(fullUrl, 10000)
+          .then(function(res) {
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            return res.json();
+          })
+          .then(function(data) {
+            if (!Array.isArray(data)) throw new Error("Unexpected Binance response (likely geo-blocked)");
+            return data.map(function(d) {
+              return { high: parseFloat(d[2]), low: parseFloat(d[3]), close: parseFloat(d[4]), open: parseFloat(d[1]) };
+            });
+          })
+          .catch(function() {
+            // Direct call failed (geo-block / CORS / network) — retry through the proxy chain
+            return fetchViaProxy(fullUrl)
+              .then(function(res) { return res.json(); })
+              .then(function(data) {
+                return data.map(function(d) {
+                  return { high: parseFloat(d[2]), low: parseFloat(d[3]), close: parseFloat(d[4]), open: parseFloat(d[1]) };
+                });
+              });
+          });
+      } else {
+        const category = marketType === "FUTURES" ? "linear" : "spot";
+        const tfMap = { "15m": "15", "1h": "60", "4h": "240", "1d": "D", "1w": "W" };
+        const fullUrl = 'https://api.bybit.com/v5/market/kline?category=' + category + '&symbol=' + symbol + '&interval=' + (tfMap[interval] || "240") + '&limit=90';
+        return fetchWithTimeout(fullUrl, 10000)
+          .then(function(res) {
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            return res.json();
+          })
+          .then(function(json) {
+            const list = json.result ? json.result.list || [] : [];
+            if (!list.length) throw new Error("Empty Bybit response");
+            return list.reverse().map(function(d) {
+              return { high: parseFloat(d[2]), low: parseFloat(d[3]), close: parseFloat(d[4]), open: parseFloat(d[1]) };
+            });
+          })
+          .catch(function() {
+            return fetchViaProxy(fullUrl)
+              .then(function(res) { return res.json(); })
+              .then(function(json) {
+                const list = json.result ? json.result.list || [] : [];
+                return list.reverse().map(function(d) {
+                  return { high: parseFloat(d[2]), low: parseFloat(d[3]), close: parseFloat(d[4]), open: parseFloat(d[1]) };
+                });
+              });
+          });
+      }
+    }
+
+    let activeAnalyses = {};
+    let currentStocksTab = "ALL";
+    let currentIndiaTab = "ALL";
+    let currentCryptoTab = "ALL";
+
+    function buildRowHTML(analysis) {
+      const key = analysis.symbol + "_" + analysis.source + "_" + analysis.marketType;
+      const dirClass = analysis.direction === "LONG" ? "long" : analysis.direction === "SHORT" ? "short" : "wait";
+      const timingClass = analysis.timingStatus.indexOf("CONFIRMED") !== -1 || analysis.timingStatus.indexOf("BEST") !== -1 ? "ready" : "pullback";
+      const marketClass = analysis.marketType === "INDIA" ? "india" : analysis.marketType === "STOCKS" ? "stocks" : analysis.marketType === "FUTURES" ? "futures" : "spot";
+      const currencyPrefix = analysis.marketType === "INDIA" ? "₹" : "$";
+
+      return '<tr>' +
+        '<td><strong>' + analysis.symbol + '</strong></td>' +
+        '<td><span class="badge-market ' + marketClass + '">' + analysis.marketType + '</span></td>' +
+        '<td><span class="badge-tag ' + (analysis.source.includes('Stocks') || analysis.source.includes('NSE') ? 'neutral' : 'wait') + '">' + analysis.source + '</span></td>' +
+        '<td>' + currencyPrefix + analysis.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
+        '<td style="color:var(--accent-cyan); font-weight:700;">' + currencyPrefix + (analysis.volume24h / 1000000).toFixed(2) + 'M</td>' +
+        '<td><span class="badge-tag ' + dirClass + '">' + analysis.direction + '</span></td>' +
+        '<td><span class="timing-status-cell ' + timingClass + '">' + analysis.timingStatus + '</span></td>' +
+        '<td>' + currencyPrefix + analysis.triggerEntry.toFixed(2) + '</td>' +
+        '<td style="color:var(--accent-red); font-weight:700;">' + currencyPrefix + analysis.invalidationStop.toFixed(2) + '</td>' +
+        '<td style="color:var(--accent-green); font-weight:700;">' + currencyPrefix + analysis.takeProfit.toFixed(2) + '</td>' +
+        '<td><button class="btn-inspect" onclick="openAnalysis(\'' + key + '\')">Analyze</button></td>' +
+      '</tr>';
+    }
+
+    function renderStocksTable() {
+      const tbody = document.getElementById("stocks-tbody");
+      const list = Object.values(activeAnalyses).filter(function(a) { return a.marketType === "STOCKS"; });
+
+      document.getElementById("stocks-tab-count-all").textContent = list.length;
+      document.getElementById("stocks-tab-count-breakout").textContent = list.filter(function(a) { return a.isBreakout; }).length;
+      document.getElementById("stocks-tab-count-kijun").textContent = list.filter(function(a) { return a.isKijun; }).length;
+      document.getElementById("stocks-tab-count-long").textContent = list.filter(function(a) { return a.direction === "LONG"; }).length;
+      document.getElementById("stocks-tab-count-short").textContent = list.filter(function(a) { return a.direction === "SHORT"; }).length;
+
+      const filtered = list.filter(function(a) {
+        if (currentStocksTab === "BREAKOUT") return a.isBreakout;
+        if (currentStocksTab === "KIJUN") return a.isKijun;
+        if (currentStocksTab === "LONG") return a.direction === "LONG";
+        if (currentStocksTab === "SHORT") return a.direction === "SHORT";
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" class="empty-state">No US stocks found matching filter.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = filtered.map(buildRowHTML).join('');
+    }
+
+    function renderIndiaTable() {
+      const tbody = document.getElementById("india-tbody");
+      const list = Object.values(activeAnalyses).filter(function(a) { return a.marketType === "INDIA"; });
+
+      document.getElementById("india-tab-count-all").textContent = list.length;
+      document.getElementById("india-tab-count-breakout").textContent = list.filter(function(a) { return a.isBreakout; }).length;
+      document.getElementById("india-tab-count-kijun").textContent = list.filter(function(a) { return a.isKijun; }).length;
+      document.getElementById("india-tab-count-long").textContent = list.filter(function(a) { return a.direction === "LONG"; }).length;
+      document.getElementById("india-tab-count-short").textContent = list.filter(function(a) { return a.direction === "SHORT"; }).length;
+
+      const filtered = list.filter(function(a) {
+        if (currentIndiaTab === "BREAKOUT") return a.isBreakout;
+        if (currentIndiaTab === "KIJUN") return a.isKijun;
+        if (currentIndiaTab === "LONG") return a.direction === "LONG";
+        if (currentIndiaTab === "SHORT") return a.direction === "SHORT";
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" class="empty-state">No Indian stocks found matching filter.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = filtered.map(buildRowHTML).join('');
+    }
+
+    function renderCryptoTable() {
+      const tbody = document.getElementById("crypto-tbody");
+      const list = Object.values(activeAnalyses).filter(function(a) { return a.marketType === "FUTURES" || a.marketType === "SPOT"; });
+
+      document.getElementById("crypto-tab-count-all").textContent = list.length;
+      document.getElementById("crypto-tab-count-futures").textContent = list.filter(function(a) { return a.marketType === "FUTURES"; }).length;
+      document.getElementById("crypto-tab-count-spot").textContent = list.filter(function(a) { return a.marketType === "SPOT"; }).length;
+      document.getElementById("crypto-tab-count-breakout").textContent = list.filter(function(a) { return a.isBreakout; }).length;
+      document.getElementById("crypto-tab-count-kijun").textContent = list.filter(function(a) { return a.isKijun; }).length;
+      document.getElementById("crypto-tab-count-long").textContent = list.filter(function(a) { return a.direction === "LONG"; }).length;
+      document.getElementById("crypto-tab-count-short").textContent = list.filter(function(a) { return a.direction === "SHORT"; }).length;
+
+      const filtered = list.filter(function(a) {
+        if (currentCryptoTab === "FUTURES") return a.marketType === "FUTURES";
+        if (currentCryptoTab === "SPOT") return a.marketType === "SPOT";
+        if (currentCryptoTab === "BREAKOUT") return a.isBreakout;
+        if (currentCryptoTab === "KIJUN") return a.isKijun;
+        if (currentCryptoTab === "LONG") return a.direction === "LONG";
+        if (currentCryptoTab === "SHORT") return a.direction === "SHORT";
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" class="empty-state">No crypto pairs found matching filter.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = filtered.map(buildRowHTML).join('');
+    }
+
+    // Tab Event Listeners
+    document.querySelectorAll("#stocks-tab-bar .tab-btn").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        document.querySelectorAll("#stocks-tab-bar .tab-btn").forEach(function(b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        currentStocksTab = btn.getAttribute("data-tab");
+        renderStocksTable();
+      });
+    });
+
+    document.querySelectorAll("#india-tab-bar .tab-btn").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        document.querySelectorAll("#india-tab-bar .tab-btn").forEach(function(b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        currentIndiaTab = btn.getAttribute("data-tab");
+        renderIndiaTable();
+      });
+    });
+
+    document.querySelectorAll("#crypto-tab-bar .tab-btn").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        document.querySelectorAll("#crypto-tab-bar .tab-btn").forEach(function(b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        currentCryptoTab = btn.getAttribute("data-tab");
+        renderCryptoTable();
+      });
+    });
+
+    document.querySelectorAll(".page-nav-btn[data-page]").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        document.querySelectorAll(".page-nav-btn[data-page]").forEach(function(b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        const pageId = btn.getAttribute("data-page");
+        document.querySelectorAll(".app-page").forEach(function(p) { p.classList.remove("active"); });
+        document.getElementById("page-" + pageId).classList.add("active");
+        // Keep the Market Terminal hero's pills + live ticker in sync with whichever
+        // tab was just selected (no-op for tabs with no matching pill, e.g. News/Calendar).
+        if (window.mtReflectMarketForPage) window.mtReflectMarketForPage(pageId);
+      });
+    });
+
+    // 6. Scan Triggers (US Stocks, Indian Stocks, Crypto)
+    // Runs a large symbol universe (up to 400) in small concurrent batches so we don't
+    // fire hundreds of requests at once (avoids rate-limiting / CORS-proxy overload),
+    // and streams results into the table as each batch completes.
+    function runUniverseScanInBatches(universe, tf, source, marketType, tbody, summaryElId, renderFn, batchSize) {
+      batchSize = batchSize || 12;
+      const total = universe.length;
+      let completed = 0;
+      let found = 0;
+      const summaryEl = document.getElementById(summaryElId);
+
+      tbody.innerHTML = '<tr><td colspan="11" class="empty-state">Scanning 0 / ' + total + ' symbols...</td></tr>';
+
+      function processBatch(startIdx) {
+        if (startIdx >= total) {
+          if (summaryEl) summaryEl.textContent = "Scan complete — " + found + " / " + total + " symbols with valid data";
+          renderFn();
+          return;
+        }
+        const batch = universe.slice(startIdx, startIdx + batchSize);
+        return Promise.all(batch.map(function(sym) {
+          return fetchYahooChartFull(sym, tf).then(function(res) {
+            completed++;
+            if (res && res.candles.length >= 52) {
+              const analysis = analyzeMarket(res.candles, sym, source, marketType, res.volume);
+              if (analysis) {
+                activeAnalyses[analysis.symbol + "_" + analysis.source + "_" + analysis.marketType] = analysis;
+                found++;
+              }
+            }
+          }).catch(function() { completed++; });
+        })).then(function() {
+          if (summaryEl) summaryEl.textContent = "Scanning " + completed + " / " + total + " symbols... (" + found + " signals found)";
+          renderFn();
+          return processBatch(startIdx + batchSize);
+        });
+      }
+
+      return processBatch(0);
+    }
+
+    document.getElementById("run-stocks-scan-btn").addEventListener("click", function() {
+      const tf = document.getElementById("stocks-tf-select").value;
+      const tbody = document.getElementById("stocks-tbody");
+      Object.keys(activeAnalyses).forEach(function(k) { if (activeAnalyses[k].marketType === "STOCKS") delete activeAnalyses[k]; });
+      runUniverseScanInBatches(US_STOCKS_UNIVERSE, tf, "US Stocks", "STOCKS", tbody, "stocks-scan-summary", renderStocksTable, 12);
+    });
+
+    document.getElementById("run-india-scan-btn").addEventListener("click", function() {
+      const tf = document.getElementById("india-tf-select").value;
+      const tbody = document.getElementById("india-tbody");
+      Object.keys(activeAnalyses).forEach(function(k) { if (activeAnalyses[k].marketType === "INDIA") delete activeAnalyses[k]; });
+      runUniverseScanInBatches(INDIA_STOCKS_UNIVERSE, tf, "NSE", "INDIA", tbody, "india-scan-summary", renderIndiaTable, 12);
+    });
+
+    document.getElementById("run-crypto-scan-btn").addEventListener("click", function() {
+      const exchange = document.getElementById("crypto-exchange-select").value;
+      const marketType = document.getElementById("crypto-market-type-select").value;
+      const tf = document.getElementById("crypto-tf-select").value;
+      const allVol = document.getElementById("crypto-vol-all-checkbox").checked;
+      const minVol = allVol ? 0 : (parseFloat(document.getElementById("crypto-vol-custom-input").value) || 10) * 1000000;
+
+      const tbody = document.getElementById("crypto-tbody");
+      tbody.innerHTML = '<tr><td colspan="11" class="empty-state">Fetching crypto orderbooks &amp; executing Ichimoku scan...</td></tr>';
+
+      Object.keys(activeAnalyses).forEach(function(k) { if (activeAnalyses[k].marketType === "FUTURES" || activeAnalyses[k].marketType === "SPOT") delete activeAnalyses[k]; });
+
+      const fetches = [];
+      if (marketType === "futures" || marketType === "both") {
+        if (exchange === "both" || exchange === "bybit") fetches.push(getBybitFutures(minVol).catch(function() { return []; }));
+        if (exchange === "both" || exchange === "binance") fetches.push(getBinanceFutures(minVol).catch(function() { return []; }));
+      }
+      if (marketType === "spot" || marketType === "both") {
+        if (exchange === "both" || exchange === "bybit") fetches.push(getBybitSpot(minVol).catch(function() { return []; }));
+        if (exchange === "both" || exchange === "binance") fetches.push(getBinanceSpot(minVol).catch(function() { return []; }));
+      }
+
+      Promise.all(fetches).then(function(results) {
+        let pairs = [];
+        results.forEach(function(r) { pairs = pairs.concat(r); });
+
+        const bestByKey = {};
+        pairs.forEach(function(p) {
+          const key = p.symbol + "_" + p.marketType;
+          if (!bestByKey[key] || p.volume > bestByKey[key].volume) bestByKey[key] = p;
+        });
+        pairs = Object.values(bestByKey);
+
+        const candlePromises = pairs.map(function(item) {
+          return fetchCandles(item.symbol, tf, item.source, item.marketType)
+            .then(function(candles) {
+              if (candles && candles.length >= 52) {
+                return analyzeMarket(candles, item.symbol, item.source, item.marketType, item.volume);
+              }
+              return null;
+            })
+            .catch(function() { return null; });
+        });
+
+        Promise.all(candlePromises).then(function(analyzedList) {
+          analyzedList.forEach(function(analysis) {
+            if (analysis) activeAnalyses[analysis.symbol + "_" + analysis.source + "_" + analysis.marketType] = analysis;
+          });
+          renderCryptoTable();
+        });
+      });
+    });
+
+    // 7. Manual Search Handlers (US Stocks, Indian Stocks, Crypto)
+    function executeManualSearch(symbolInput, tf, marketType, defaultSource) {
+      let sym = symbolInput.trim().toUpperCase();
+      if (!sym) return;
+
+      if (marketType === "INDIA" && !sym.includes(".")) {
+        sym = sym + ".NS";
+      }
+
+      const key = sym + "_" + defaultSource + "_" + marketType;
+
+      fetchCandles(sym, tf, defaultSource, marketType).then(function(candles) {
+        if (candles && candles.length >= 52) {
+          const analysis = analyzeMarket(candles, sym, defaultSource, marketType, 50000000);
+          if (analysis) {
+            activeAnalyses[key] = analysis;
+            if (marketType === "STOCKS") renderStocksTable();
+            else if (marketType === "INDIA") renderIndiaTable();
+            else renderCryptoTable();
+            openAnalysis(key);
+          } else {
+            alert("Got data for " + sym + " but could not compute an analysis (not enough history).");
+          }
+        } else {
+          alert("Could not retrieve data for \"" + sym + "\". Check the symbol is correct, or the data provider may be temporarily unreachable — try again in a moment.");
+        }
+      }).catch(function(e) {
+        alert("Search failed for \"" + sym + "\": " + (e && e.message ? e.message : "network error") + ". This usually means the data source or CORS proxy is temporarily down — try again shortly.");
+      });
+    }
+
+    // Note: the old per-tab manual search boxes (search-stocks-btn / search-india-btn /
+    // search-crypto-btn) were removed — the Universal Search box above now covers
+    // stocks, Indian stocks, and crypto from one place. executeManualSearch() is kept
+    // below since the universal search still calls it internally.
+
+    // 7b. Universal Cross-Market Search (auto-detects US Stock / Indian Stock / Crypto)
+    const UNIVERSAL_SOURCE_MAP = { STOCKS: "US Stocks", INDIA: "NSE", FUTURES: "Binance", SPOT: "Binance" };
+
+    function detectMarketTypeGuess(sym) {
+      if (sym.endsWith(".NS") || sym.endsWith(".BO")) return "INDIA";
+      if (/^[A-Z0-9]+(USDT|USDC|BUSD)$/.test(sym) || /^(BTC|ETH|SOL|BNB|XRP|DOGE|ADA|AVAX|LINK|MATIC|DOT|LTC|TRX|SHIB|ATOM|UNI|NEAR|APT|ARB|OP|SUI|PEPE)$/.test(sym)) return "FUTURES";
+      if (INDIA_STOCKS_UNIVERSE.some(function(s) { return s.replace(".NS", "") === sym; })) return "INDIA";
+      return "STOCKS";
+    }
+
+    function normalizeSymbolForMarket(sym, marketType) {
+      let out = sym;
+      if (marketType === "INDIA" && !out.includes(".")) out = out + ".NS";
+      if ((marketType === "FUTURES" || marketType === "SPOT") && !/USDT$|USDC$|BUSD$/.test(out)) out = out + "USDT";
+      return out;
+    }
+
+    // Indian tickers can be listed as .NS (NSE) or .BO (BSE) on Yahoo Finance —
+    // if the user typed a bare symbol, try both suffixes before giving up.
+    function candidateSymbolsForMarket(sym, marketType) {
+      if (sym.includes(".") || sym.startsWith("^")) return [sym];
+      if (marketType === "INDIA") return [sym + ".NS", sym + ".BO"];
+      return [normalizeSymbolForMarket(sym, marketType)];
+    }
+
+    function attemptFetchForType(sym, tf, marketType) {
+      const source = UNIVERSAL_SOURCE_MAP[marketType];
+      const candidates = candidateSymbolsForMarket(sym, marketType);
+
+      function tryCandidate(i, lastErr) {
+        if (i >= candidates.length) return Promise.reject(lastErr || new Error("insufficient candle data for " + marketType));
+        const normalizedSym = candidates[i];
+        return fetchCandles(normalizedSym, tf, source, marketType).then(function(candles) {
+          if (!candles || candles.length < 52) throw new Error("insufficient candle data for " + marketType);
+          return { candles: candles, symbol: normalizedSym, marketType: marketType, source: source };
+        }).catch(function(e) {
+          return tryCandidate(i + 1, e);
+        });
+      }
+      return tryCandidate(0, null);
+    }
+
+    function executeUniversalSearch() {
+      const rawInput = document.getElementById("universal-symbol-search").value;
+      const sym = rawInput.trim().toUpperCase();
+      const statusEl = document.getElementById("universal-search-status");
+      if (!sym) {
+        statusEl.textContent = "Enter a stock ticker or crypto symbol to search.";
+        statusEl.style.color = "var(--accent-orange)";
+        return;
+      }
+
+      const marketChoice = document.getElementById("universal-market-select").value;
+      const tf = "1h";
+
+      statusEl.textContent = "Searching \"" + sym + "\" across US Stocks, Indian Stocks &amp; Crypto...".replace("&amp;", "&");
+      statusEl.style.color = "var(--accent-cyan)";
+
+      // Always try the explicitly chosen market first, but fall back to auto-detecting
+      // across the others rather than failing outright — e.g. if the user has the
+      // "INDIAN STOCKS" pill selected but types a crypto ticker like XRP, we still find it.
+      let cascade;
+      const guess = detectMarketTypeGuess(sym);
+      const primary = marketChoice === "AUTO" ? guess : marketChoice;
+      cascade = [primary].concat(["STOCKS", "INDIA", "FUTURES"].filter(function(m) { return m !== primary; }));
+
+      let lastError = null;
+      function tryNext(i) {
+        if (i >= cascade.length) {
+          statusEl.textContent = "No match found for \"" + sym + "\" in US Stocks, Indian Stocks, or Crypto." +
+            (lastError ? " (" + lastError + ")" : "");
+          statusEl.style.color = "var(--accent-red)";
+          return;
+        }
+        const marketType = cascade[i];
+        attemptFetchForType(sym, tf, marketType).then(function(res) {
+          const analysis = analyzeMarket(res.candles, res.symbol, res.source, res.marketType, 50000000);
+          if (!analysis) { tryNext(i + 1); return; }
+          const key = res.symbol + "_" + res.source + "_" + res.marketType;
+          activeAnalyses[key] = analysis;
+          if (res.marketType === "STOCKS") renderStocksTable();
+          else if (res.marketType === "INDIA") renderIndiaTable();
+          else renderCryptoTable();
+          statusEl.textContent = "Found " + res.symbol + " (" + res.marketType + ") — chart opened below.";
+          statusEl.style.color = "var(--accent-green)";
+          openAnalysis(key);
+        }).catch(function(e) {
+          lastError = e && e.message ? e.message : "network error on " + marketType;
+          tryNext(i + 1);
+        });
+      }
+      tryNext(0);
+    }
+
+    document.getElementById("universal-search-btn").addEventListener("click", executeUniversalSearch);
+    document.getElementById("universal-symbol-search").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") executeUniversalSearch();
+    });
+
+    // 8. TradingView Interactive Widget Integration
+    let currentTvWidget = null;
+    let activeModalSymbol = "";
+    let activeModalMarket = "";
+
+    function loadTradingViewWidget(symbol, tf, marketType) {
+      let tvSymbol = symbol;
+
+      if (marketType === "STOCKS") {
+        tvSymbol = "NASDAQ:" + symbol.replace(".NS", "");
+      } else if (marketType === "INDIA") {
+        tvSymbol = "NSE:" + symbol.replace(".NS", "").replace(".BO", "");
+      } else {
+        tvSymbol = "BINANCE:" + symbol;
+      }
+
+      const container = document.getElementById("tv_chart_container");
+      container.innerHTML = "";
+
+      if (typeof TradingView !== "undefined") {
+        const resolvedInterval = tf || "60";
+        const widgetConfig = {
+          container_id: "tv_chart_container",
+          width: "100%",
+          height: 420,
+          symbol: tvSymbol,
+          interval: resolvedInterval,
+          timezone: "Etc/UTC",
+          theme: "dark",
+          style: "1",
+          locale: "en",
+          toolbar_bg: "#0b0f17",
+          enable_publishing: false,
+          allow_symbol_change: true,
+          save_image: false,
+          studies: [
+            "STD;Ichimoku%20Cloud"
+          ]
+        };
+        // "1Y" button uses monthly candles (TradingView's largest interval) zoomed to a 12-month range
+        if (resolvedInterval === "M") {
+          widgetConfig.range = "12M";
+        }
+        currentTvWidget = new TradingView.widget(widgetConfig);
+      }
+    }
+
+    document.querySelectorAll(".tv-tf-btn").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        document.querySelectorAll(".tv-tf-btn").forEach(function(b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        const tf = btn.getAttribute("data-tv-tf");
+        loadTradingViewWidget(activeModalSymbol, tf, activeModalMarket);
+      });
+    });
+
+    // 8b. Live News Engine — Crypto / FOMC / US Stocks / Economy, auto-refreshed every 1 hour
+    function fetchJsonSmart(url, timeoutMs) {
+      return fetchWithTimeout(url, timeoutMs || 10000)
+        .then(function(res) { if (!res.ok) throw new Error("HTTP " + res.status); return res.json(); })
+        .catch(function() {
+          return fetchViaProxy(url).then(function(res) { return res.json(); });
+        });
+    }
+
+    function fetchTextViaProxy(targetUrl) {
+      function tryIndex(i) {
+        if (i >= CORS_PROXIES.length) {
+          return Promise.reject(new Error("All CORS proxies failed for " + targetUrl));
+        }
+        const proxiedUrl = CORS_PROXIES[i](targetUrl);
+        return fetchWithTimeout(proxiedUrl, 8000)
+          .then(function(res) {
+            if (!res.ok) throw new Error("HTTP " + res.status + " from proxy " + i);
+            return res.text();
+          })
+          .catch(function() {
+            return tryIndex(i + 1);
+          });
+      }
+      return tryIndex(0);
+    }
+
+    function fetchTextSmart(url, timeoutMs) {
+      return fetchWithTimeout(url, timeoutMs || 10000)
+        .then(function(res) { if (!res.ok) throw new Error("HTTP " + res.status); return res.text(); })
+        .catch(function() {
+          return fetchTextViaProxy(url);
+        });
+    }
+
+    function stripHtml(str) {
+      return (str || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function parseRssXml(xmlText, category, fallbackSourceName) {
+      const doc = new DOMParser().parseFromString(xmlText, "text/xml");
+      if (doc.querySelector("parsererror")) throw new Error("RSS feed returned invalid XML");
+      const channelTitleEl = doc.querySelector("channel > title");
+      const sourceName = (channelTitleEl && channelTitleEl.textContent) || fallbackSourceName;
+      const items = Array.prototype.slice.call(doc.querySelectorAll("item"), 0, 24);
+      if (!items.length) throw new Error("RSS feed returned no items");
+      return items.map(function(it) {
+        const titleEl = it.querySelector("title");
+        const linkEl = it.querySelector("link");
+        const dateEl = it.querySelector("pubDate") || it.getElementsByTagNameNS("*", "date")[0];
+        const descEl = it.querySelector("description");
+        return {
+          title: titleEl ? titleEl.textContent : "",
+          url: linkEl ? (linkEl.textContent || linkEl.getAttribute("href") || "") : "",
+          source: sourceName,
+          time: new Date(dateEl ? dateEl.textContent : ""),
+          snippet: stripHtml(descEl ? descEl.textContent : "").slice(0, 220),
+          category: category
+        };
+      });
+    }
+
+    function fetchRssCategory(rssUrl, category, fallbackSourceName) {
+      // Fetches the RSS XML directly through the CORS proxy chain and parses it
+      // ourselves. Previously this went through rss2json.com's free API, which
+      // rate-limits at 10 requests/hour with no key — that limit is almost
+      // certainly why news stopped loading. This has no such limit.
+      return fetchTextSmart(rssUrl).then(function(xmlText) {
+        return parseRssXml(xmlText, category, fallbackSourceName);
+      });
+    }
+
+    const NEWS_CATEGORY_CONFIG = {
+      CRYPTO: {
+        heading: "Crypto Market News (1h Sync)",
+        sub: "Live headlines from major crypto publishers",
+        fetch: function() {
+          return fetchJsonSmart("https://min-api.cryptocompare.com/data/v2/news/?lang=EN&sortOrder=latest").then(function(json) {
+            const list = (json && json.Data) || [];
+            if (!list.length) throw new Error("CryptoCompare returned no articles" + (json && json.Message ? (": " + json.Message) : ""));
+            return list.slice(0, 24).map(function(d) {
+              return {
+                title: d.title,
+                url: d.url,
+                source: (d.source_info && d.source_info.name) || d.source || "CryptoCompare",
+                time: new Date(d.published_on * 1000),
+                snippet: stripHtml(d.body).slice(0, 220),
+                category: "CRYPTO"
+              };
+            });
+          }).catch(function() {
+            // CryptoCompare's public feed occasionally rate-limits or goes down —
+            // fall back to CoinDesk's RSS feed, then CoinTelegraph's, before giving up.
+            return fetchRssCategory("https://www.coindesk.com/arc/outboundfeeds/rss/", "CRYPTO", "CoinDesk");
+          }).catch(function() {
+            return fetchRssCategory("https://cointelegraph.com/rss", "CRYPTO", "Cointelegraph");
+          });
+        }
+      },
+      FOMC: {
+        heading: "FOMC / Federal Reserve News (1h Sync)",
+        sub: "Official Federal Reserve press releases & statements",
+        fetch: function() { return fetchRssCategory("https://www.federalreserve.gov/feeds/press_all.xml", "FOMC", "Federal Reserve"); }
+      },
+      STOCKS: {
+        heading: "US Stock Market News (1h Sync)",
+        sub: "Top market headlines from Yahoo Finance",
+        fetch: function() { return fetchRssCategory("https://finance.yahoo.com/news/rssindex", "STOCKS", "Yahoo Finance"); }
+      },
+      ECONOMY: {
+        heading: "Inflation, Jobs & Economic Data (1h Sync)",
+        sub: "Macro & economic headlines from CNBC Economy",
+        fetch: function() { return fetchRssCategory("https://www.cnbc.com/id/20910258/device/rss/rss.html", "ECONOMY", "CNBC Economy"); }
+      }
+    };
+
+    let newsCache = { CRYPTO: [], FOMC: [], STOCKS: [], ECONOMY: [] };
+    let currentNewsCategory = "CRYPTO";
+
+    function timeAgo(date) {
+      if (!date || isNaN(date.getTime())) return "";
+      const diffMs = Date.now() - date.getTime();
+      const mins = Math.floor(diffMs / 60000);
+      if (mins < 1) return "just now";
+      if (mins < 60) return mins + "m ago";
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + "h ago";
+      return Math.floor(hrs / 24) + "d ago";
+    }
+
+    function renderNewsGrid() {
+      const grid = document.getElementById("news-grid-cards");
+      const list = newsCache[currentNewsCategory] || [];
+      const cfg = NEWS_CATEGORY_CONFIG[currentNewsCategory];
+      document.getElementById("news-page-heading").textContent = cfg.heading;
+      document.getElementById("news-page-sub").textContent = cfg.sub;
+
+      if (!list.length) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;">No headlines available right now. Try Refresh Now.</div>';
+        return;
+      }
+
+      grid.innerHTML = list.map(function(n) {
+        return '<div class="news-card">' +
+            '<div>' +
+              '<div class="news-header-meta">' +
+                '<span class="news-source-tag">' + escapeHtml(n.source) + '</span>' +
+                '<span class="news-time-tag">' + timeAgo(n.time) + '</span>' +
+              '</div>' +
+              '<a class="news-title" href="' + n.url + '" target="_blank" rel="noopener noreferrer" style="display:block; margin-top:8px;">' + escapeHtml(n.title) + '</a>' +
+              (n.snippet ? '<p class="news-body-snippet" style="margin-top:6px;">' + escapeHtml(n.snippet) + '</p>' : '') +
+            '</div>' +
+            '<div class="news-footer">' +
+              '<span class="news-category-tag">' + n.category + '</span>' +
+              '<a class="news-read-link" href="' + n.url + '" target="_blank" rel="noopener noreferrer">Read More →</a>' +
+            '</div>' +
+          '</div>';
+      }).join("");
+    }
+
+    function loadAllNews() {
+      const statusEl = document.getElementById("news-status-txt");
+      statusEl.textContent = "Syncing...";
+      const cats = Object.keys(NEWS_CATEGORY_CONFIG);
+      const failedCats = [];
+      return Promise.all(cats.map(function(cat) {
+        return NEWS_CATEGORY_CONFIG[cat].fetch()
+          .then(function(list) {
+            list.sort(function(a, b) { return (b.time ? b.time.getTime() : 0) - (a.time ? a.time.getTime() : 0); });
+            newsCache[cat] = list;
+          })
+          .catch(function(e) {
+            console.warn("News fetch failed for " + cat, e && e.message);
+            failedCats.push(cat);
+          });
+      })).then(function() {
+        document.getElementById("tab-count-news").textContent = newsCache.CRYPTO.length;
+        document.getElementById("tab-count-fomc").textContent = newsCache.FOMC.length;
+        document.getElementById("tab-count-stocknews").textContent = newsCache.STOCKS.length;
+        document.getElementById("tab-count-econ").textContent = newsCache.ECONOMY.length;
+        renderNewsGrid();
+        if (failedCats.length === cats.length) {
+          statusEl.textContent = "All feeds failed — proxy/network issue, try Refresh Now";
+          statusEl.style.color = "var(--accent-red)";
+        } else if (failedCats.length) {
+          statusEl.textContent = "Updated " + new Date().toLocaleTimeString() + " (" + failedCats.join(", ") + " failed)";
+          statusEl.style.color = "var(--accent-orange)";
+        } else {
+          statusEl.textContent = "Updated " + new Date().toLocaleTimeString();
+          statusEl.style.color = "";
+        }
+      });
+    }
+
+    document.querySelectorAll("#news-category-nav .page-nav-btn").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        document.querySelectorAll("#news-category-nav .page-nav-btn").forEach(function(b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        currentNewsCategory = btn.getAttribute("data-news-cat");
+        renderNewsGrid();
+      });
+    });
+
+    document.getElementById("btn-manual-news-refresh").addEventListener("click", function() {
+      loadAllNews();
+      newsSecondsRemaining = 3600;
+    });
+
+    // Silently refresh the currently open TradingView chart/analysis on the same hourly cycle
+    function refreshOpenAnalysisChart() {
+      const modal = document.getElementById("analysis-modal");
+      if (!modal || modal.style.display !== "flex") return;
+      if (!activeModalSymbol || !activeModalMarket) return;
+      const source = UNIVERSAL_SOURCE_MAP[activeModalMarket] || "Binance";
+      fetchCandles(activeModalSymbol, "1h", source, activeModalMarket).then(function(candles) {
+        if (candles && candles.length >= 52) {
+          const analysis = analyzeMarket(candles, activeModalSymbol, source, activeModalMarket, 50000000);
+          if (analysis) {
+            const key = activeModalSymbol + "_" + source + "_" + activeModalMarket;
+            activeAnalyses[key] = analysis;
+            openAnalysis(key);
+          }
+        }
+      }).catch(function() {});
+    }
+
+    // Hourly countdown — drives both the news auto-refresh and the open chart auto-refresh
+    let newsSecondsRemaining = 3600;
+    setInterval(function() {
+      newsSecondsRemaining--;
+      if (newsSecondsRemaining <= 0) {
+        loadAllNews();
+        refreshOpenAnalysisChart();
+        newsSecondsRemaining = 3600;
+      }
+      const m = Math.floor(newsSecondsRemaining / 60);
+      const s = newsSecondsRemaining % 60;
+      const timerEl = document.getElementById("news-timer");
+      if (timerEl) timerEl.textContent = m + "m " + (s < 10 ? "0" : "") + s + "s";
+    }, 1000);
+
+    loadAllNews();
+
+    // 9. Canvas Fallback Renderer
+    function renderCanvasChart(candles, tenkan, kijun) {
+      const canvas = document.getElementById("candleChart");
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const n = candles.length;
+      if (n === 0) return;
+
+      const minP = Math.min.apply(null, candles.map(function(c) { return c.low; }));
+      const maxP = Math.max.apply(null, candles.map(function(c) { return c.high; }));
+      const pad = (maxP - minP) * 0.08;
+      const chartMin = minP - pad;
+      const chartMax = maxP + pad;
+
+      function toY(p) { return h - ((p - chartMin) / (chartMax - chartMin)) * h; }
+      const candleW = w / (n + 10);
+
+      for (let i = 0; i < n; i++) {
+        const c = candles[i];
+        const x = i * candleW + candleW / 2;
+        const isBull = c.close >= c.open;
+
+        ctx.strokeStyle = isBull ? "#00ff66" : "#ff334b";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(x, toY(c.high));
+        ctx.lineTo(x, toY(c.low));
+        ctx.stroke();
+
+        ctx.fillStyle = isBull ? "#00ff66" : "#ff334b";
+        const top = Math.min(toY(c.open), toY(c.close));
+        const bot = Math.max(toY(c.open), toY(c.close));
+        ctx.fillRect(x - candleW * 0.35, top, candleW * 0.7, Math.max(2, bot - top));
+      }
+
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, toY(tenkan));
+      ctx.lineTo(w, toY(tenkan));
+      ctx.stroke();
+
+      ctx.strokeStyle = "#fbbf24";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, toY(kijun));
+      ctx.lineTo(w, toY(kijun));
+      ctx.stroke();
+    }
+
+    // 10. Modal Controller
+    window.openAnalysis = function(key) {
+      const data = activeAnalyses[key];
+      if (!data) return;
+
+      activeModalSymbol = data.symbol;
+      activeModalMarket = data.marketType;
+
+      const currencyPrefix = data.marketType === "INDIA" ? "₹" : "$";
+
+      document.getElementById("modal-symbol").textContent = data.symbol;
+      document.getElementById("modal-source").textContent = data.source + " (" + data.marketType + ") · 24h Vol: " + currencyPrefix + (data.volume24h/1000000).toFixed(2) + "M";
+      document.getElementById("modal-signal-title").textContent = (data.direction === "LONG" ? "ENTER LONG (" : data.direction === "SHORT" ? "ENTER SHORT (" : "WAIT / NO TRADE (") + data.grade + ")";
+      document.getElementById("modal-timing-text").textContent = data.timingDetail;
+
+      const badge = document.getElementById("modal-direction-badge");
+      badge.textContent = data.direction;
+      badge.style.color = data.direction === "LONG" ? "var(--accent-green)" : data.direction === "SHORT" ? "var(--accent-red)" : "var(--accent-orange)";
+      badge.style.background = data.direction === "LONG" ? "var(--accent-green-dim)" : data.direction === "SHORT" ? "var(--accent-red-dim)" : "var(--accent-orange-dim)";
+      badge.style.border = "1px solid " + badge.style.color;
+
+      document.getElementById("modal-entry-price").textContent = currencyPrefix + data.triggerEntry.toFixed(2);
+      document.getElementById("modal-stop-price").textContent = currencyPrefix + data.invalidationStop.toFixed(2);
+      document.getElementById("modal-tp-price").textContent = currencyPrefix + data.takeProfit.toFixed(2);
+      document.getElementById("modal-grade").textContent = data.grade;
+
+      // Ichimoku Parameter Breakdown
+      document.getElementById("rule-ichimoku-stats").innerHTML =
+        '<div class="stat-row-item"><span>TK Cross:</span><strong class="' + (data.tkCross === 'BULLISH' ? 'color-green' : data.tkCross === 'BEARISH' ? 'color-red' : 'color-cyan') + '">' + data.tkCross + '</strong></div>' +
+        '<div class="stat-row-item"><span>Cloud Position:</span><strong class="' + (data.cloudStatus === 'ABOVE' ? 'color-green' : data.cloudStatus === 'BELOW' ? 'color-red' : 'color-orange') + '">' + data.cloudStatus + ' CLOUD</strong></div>' +
+        '<div class="stat-row-item"><span>Tenkan / Kijun:</span><span>' + currencyPrefix + data.tenkan.toFixed(2) + ' / ' + currencyPrefix + data.kijun.toFixed(2) + '</span></div>' +
+        '<div class="stat-row-item"><span>Span A / Span B:</span><span>' + currencyPrefix + data.spanA.toFixed(2) + ' / ' + currencyPrefix + data.spanB.toFixed(2) + '</span></div>';
+
+      document.getElementById("rule-a-stats").innerHTML =
+        '<div class="stat-row-item"><span>MA Stack Status:</span><strong class="color-green">' + data.ruleAStatus + '</strong></div>' +
+        '<div class="stat-row-item"><span>EMA 5 / 10 / 30:</span><span>' + currencyPrefix + data.ma5.toFixed(2) + ' / ' + currencyPrefix + data.ma10.toFixed(2) + ' / ' + currencyPrefix + data.ma30.toFixed(2) + '</span></div>';
+
+      document.getElementById("rule-b-stats").innerHTML =
+        '<div class="stat-row-item"><span>Timing Zone:</span><strong class="color-cyan">' + data.timingStatus + '</strong></div>' +
+        '<div class="stat-row-item"><span>Major Resistance:</span><span>' + currencyPrefix + data.majorRes.toFixed(2) + ' (+' + data.distToRes.toFixed(2) + '%)</span></div>' +
+        '<div class="stat-row-item"><span>Major Support:</span><span>' + currencyPrefix + data.majorSupp.toFixed(2) + ' (-' + data.distToSupp.toFixed(2) + '%)</span></div>';
+
+      document.getElementById("rule-c-stats").innerHTML =
+        '<div class="stat-row-item"><span>RSI (14):</span><strong class="' + (data.rsiStatus === "OVERBOUGHT" ? "color-red" : data.rsiStatus === "OVERSOLD" ? "color-green" : "color-cyan") + '">' + data.rsi14.toFixed(1) + ' (' + data.rsiStatus + ')</strong></div>' +
+        '<div class="stat-row-item"><span>MACD Histogram:</span><strong class="' + (data.macdTrend === "BULLISH" ? "color-green" : "color-red") + '">' + data.macdHistogram.toFixed(3) + ' (' + data.macdTrend + ')</strong></div>';
+
+      renderCanvasChart(data.candles, data.tenkan, data.kijun);
+      loadTradingViewWidget(data.symbol, "60", data.marketType);
+
+      document.getElementById("apply-to-sizer-btn").onclick = function() {
+        document.getElementById("calc-entry").value = data.triggerEntry.toFixed(2);
+        document.getElementById("calc-stop").value = data.invalidationStop.toFixed(2);
+        calculatePosition();
+        document.getElementById("analysis-modal").style.display = "none";
+        document.querySelector('.page-nav-btn[data-page="sizer"]').click();
+      };
+
+      document.getElementById("analysis-modal").style.display = "flex";
+    };
+
+    document.getElementById("modal-close-btn").addEventListener("click", function() {
+      document.getElementById("analysis-modal").style.display = "none";
+    });
+
+    document.getElementById("analysis-modal").addEventListener("click", function(e) {
+      if (e.target.id === "analysis-modal") document.getElementById("analysis-modal").style.display = "none";
+    });
+
+    // ============ MARKET TERMINAL HERO — pill toggles + dynamic live ticker ============
+    // Also keeps the hero's US STOCKS / INDIAN STOCKS / CRYPTO pills in sync with the
+    // page-nav tabs below (📈 US Stocks / 🇮🇳 Indian Stocks / 🪙 Crypto), so there's a
+    // single source of truth for "which market is selected" instead of two separate
+    // controls that could disagree.
+    (function() {
+      var marketSelect = document.getElementById("universal-market-select");
+      var pills = document.querySelectorAll("#mt-market-pills .mt-pill");
+      var tickerTitleEl = document.getElementById("mt-ticker-title");
+      var tickerGridEl = document.getElementById("mt-ticker-grid");
+      var trySymbolsEl = document.getElementById("mt-try-symbols");
+      var currentMode = "FUTURES";
+
+      var PAGE_FOR_MARKET = { STOCKS: "stocks", INDIA: "india", FUTURES: "crypto" };
+      var MARKET_FOR_PAGE = { stocks: "STOCKS", india: "INDIA", crypto: "FUTURES" };
+
+      var TICKER_MODES = {
+        FUTURES: {
+          title: "TOP CRYPTO",
+          kind: "binance",
+          prefix: "US$",
+          trySymbols: "BTC, ETH, SOL",
+          items: [
+            { symbol: "BTCUSDT", label: "BITCOIN USD" },
+            { symbol: "ETHUSDT", label: "ETHEREUM USD" },
+            { symbol: "SOLUSDT", label: "SOLANA USD" },
+            { symbol: "XRPUSDT", label: "XRP USD" }
+          ]
+        },
+        STOCKS: {
+          title: "US INDICES",
+          kind: "yahoo",
+          prefix: "US$",
+          trySymbols: "AAPL, TSLA, MSFT",
+          items: [
+            { symbol: "^GSPC", label: "S&P 500" },
+            { symbol: "^IXIC", label: "NASDAQ COMPOSITE" },
+            { symbol: "^DJI", label: "DOW JONES INDUSTRI..." },
+            { symbol: "^VIX", label: "CBOE VOLATILITY IN..." }
+          ]
+        },
+        INDIA: {
+          title: "INDIAN INDICES",
+          kind: "yahoo",
+          prefix: "₹",
+          trySymbols: "RELIANCE, TCS, INFY",
+          items: [
+            { symbol: "^NSEI", label: "NIFTY 50" },
+            { symbol: "^BSESN", label: "S&P BSE SENSEX" },
+            { symbol: "^NSEBANK", label: "NIFTY BANK" },
+            { symbol: "NIFTY_FIN_SERVICE.NS", label: "NIFTY FIN SERVICE" }
+          ]
+        }
+      };
+
+      function fetchIndexQuote(symbol) {
+        return fetchYahooJSON("chart", { symbol: symbol, range: "5d", interval: "1d" })
+          .then(function(json) {
+            var chart = json.chart && json.chart.result && json.chart.result[0];
+            if (!chart || !chart.meta) return null;
+            var meta = chart.meta;
+            var price = meta.regularMarketPrice;
+            var prevClose = meta.chartPreviousClose || meta.previousClose;
+            if (price == null || !prevClose) return null;
+            return { price: price, pct: ((price - prevClose) / prevClose) * 100 };
+          })
+          .catch(function() { return null; });
+      }
+
+      function bindCryptoTileClicks() {
+        tickerGridEl.querySelectorAll(".mt-crypto-tile").forEach(function(tile) {
+          tile.onclick = function() {
+            var sym = tile.getAttribute("data-symbol").replace("USDT", "");
+            document.getElementById("universal-symbol-search").value = sym;
+            selectMarket("FUTURES");
+            document.getElementById("universal-search-btn").click();
+          };
+        });
+      }
+
+      function fetchBinanceTiles(items) {
+        var symbols = items.map(function(i) { return i.symbol; });
+        fetchWithTimeout("https://api.binance.com/api/v3/ticker/24hr?symbols=" + encodeURIComponent(JSON.stringify(symbols)), 8000)
+          .then(function(res) { return res.json(); })
+          .then(function(list) {
+            if (!Array.isArray(list)) return;
+            list.forEach(function(item) {
+              var tile = tickerGridEl.querySelector('.mt-crypto-tile[data-symbol="' + item.symbol + '"]');
+              if (!tile) return;
+              var price = parseFloat(item.lastPrice);
+              var pct = parseFloat(item.priceChangePercent);
+              var priceStr = price >= 100 ? price.toLocaleString(undefined, { maximumFractionDigits: 2 }) : price.toFixed(price >= 1 ? 2 : 4);
+              tile.querySelector(".mt-crypto-price").textContent = "US$" + priceStr;
+              var chgEl = tile.querySelector(".mt-crypto-chg");
+              chgEl.textContent = (pct >= 0 ? "+" : "") + pct.toFixed(2) + "%";
+              chgEl.className = "mt-crypto-chg " + (pct >= 0 ? "up" : "down");
+            });
+          })
+          .catch(function() { /* silent — keep last known values */ });
+      }
+
+      function fetchYahooTiles(mode) {
+        mode.items.forEach(function(item) {
+          fetchIndexQuote(item.symbol).then(function(q) {
+            if (!q) return;
+            var tile = tickerGridEl.querySelector('.mt-crypto-tile[data-symbol="' + item.symbol + '"]');
+            if (!tile) return;
+            var priceStr = q.price.toLocaleString(undefined, { maximumFractionDigits: 2 });
+            tile.querySelector(".mt-crypto-price").textContent = mode.prefix + priceStr;
+            var chgEl = tile.querySelector(".mt-crypto-chg");
+            chgEl.textContent = (q.pct >= 0 ? "+" : "") + q.pct.toFixed(2) + "%";
+            chgEl.className = "mt-crypto-chg " + (q.pct >= 0 ? "up" : "down");
+          });
+        });
+      }
+
+      function renderTicker(modeKey) {
+        var mode = TICKER_MODES[modeKey] || TICKER_MODES.FUTURES;
+        currentMode = modeKey in TICKER_MODES ? modeKey : "FUTURES";
+        tickerTitleEl.textContent = mode.title;
+        if (trySymbolsEl) trySymbolsEl.textContent = mode.trySymbols;
+        tickerGridEl.innerHTML = mode.items.map(function(item) {
+          return '<div class="mt-crypto-tile" data-symbol="' + item.symbol + '">' +
+            '<div class="mt-crypto-label">' + item.label + '</div>' +
+            '<div class="mt-crypto-price">--</div>' +
+            '<div class="mt-crypto-chg">--</div>' +
+          '</div>';
+        }).join('');
+
+        if (mode.kind === "binance") {
+          bindCryptoTileClicks();
+          fetchBinanceTiles(mode.items);
+        } else {
+          fetchYahooTiles(mode);
+        }
+      }
+
+      // Updates the pills + ticker only (no page switch) — used both when a pill is
+      // clicked directly and when the page-nav syncs the pills to match its own tab.
+      function reflectMarket(marketKey) {
+        marketSelect.value = marketKey;
+        pills.forEach(function(p) {
+          p.classList.toggle("active", p.getAttribute("data-market") === marketKey);
+        });
+        renderTicker(marketKey);
+      }
+
+      // Full selection: updates the pills/ticker AND switches the matching page-nav tab
+      // (📈 US Stocks / 🇮🇳 Indian Stocks / 🪙 Crypto) so both controls always agree.
+      function selectMarket(marketKey) {
+        reflectMarket(marketKey);
+        var pageId = PAGE_FOR_MARKET[marketKey];
+        if (!pageId) return;
+        document.querySelectorAll(".page-nav-btn[data-page]").forEach(function(b) { b.classList.remove("active"); });
+        var btn = document.querySelector('.page-nav-btn[data-page="' + pageId + '"]');
+        if (btn) btn.classList.add("active");
+        document.querySelectorAll(".app-page").forEach(function(p) { p.classList.remove("active"); });
+        var page = document.getElementById("page-" + pageId);
+        if (page) page.classList.add("active");
+      }
+
+      pills.forEach(function(pill) {
+        pill.addEventListener("click", function() {
+          selectMarket(pill.getAttribute("data-market"));
+        });
+      });
+
+      // Let the page-nav tab handler (defined earlier in this script) call back in here
+      // to keep the hero pills/ticker in sync when a page tab is clicked directly.
+      window.mtReflectMarketForPage = function(pageId) {
+        var marketKey = MARKET_FOR_PAGE[pageId];
+        if (marketKey) reflectMarket(marketKey);
+      };
+
+      // Initial paint (crypto tab is active by default) + periodic refresh of whichever
+      // ticker is currently shown.
+      bindCryptoTileClicks();
+      fetchBinanceTiles(TICKER_MODES.FUTURES.items);
+      setInterval(function() {
+        var mode = TICKER_MODES[currentMode];
+        if (mode.kind === "binance") fetchBinanceTiles(mode.items);
+        else fetchYahooTiles(mode);
+      }, 20000);
+    })();
+  </script>
+</body>
+</html>
